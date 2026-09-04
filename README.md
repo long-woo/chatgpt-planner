@@ -71,10 +71,12 @@ This Skill is intended for a development environment with:
 - local repository access
 - shell/test execution
 - ChatGPT desktop client
-- built-in browser/computer-use support
+- built-in browser/computer-use support, with access to the system default
+  browser as a fallback
 - access to `chatgpt.com`
 
-The built-in browser is used to communicate with ChatGPT Web.
+The built-in browser is preferred for communicating with ChatGPT Web. If it is
+unavailable or unusable, the system default browser is used instead.
 
 ## Installation
 
@@ -136,7 +138,8 @@ The workflow becomes:
 
 2. Codex creates REPO_CONTEXT
 
-3. Built-in browser opens ChatGPT Web
+3. Built-in browser opens ChatGPT Web; if unavailable, the system default
+   browser opens ChatGPT Web
 
 4. ChatGPT Web receives:
    - USER_REQUEST
@@ -490,7 +493,8 @@ Defines how ChatGPT Web reviews completed implementation.
 
 ### `references/browser-workflow.md`
 
-Defines how the built-in browser should open and interact with ChatGPT Web.
+Defines how the preferred built-in browser, and the system default browser
+fallback, should open and interact with ChatGPT Web.
 
 ### `references/failure-handling.md`
 

@@ -2,20 +2,28 @@
 
 ## Built-in browser unavailable
 
+When the built-in browser cannot be opened or used:
+
+1. Attempt the workflow in the system default browser at `https://chatgpt.com`.
+2. Reuse the existing Planner conversation when it can be confidently
+   identified; otherwise create a new dedicated Planner conversation.
+3. Continue planning and review normally once ChatGPT Web is usable.
+
 Do not:
 
 - pretend ChatGPT Web was used
 - replace the Planner with search-engine results
 - silently skip planning
 
-In Plan mode, report the Planner step as blocked.
-
-In Implement mode, only use a Codex-only fallback if the user explicitly allows
-bypassing ChatGPT Web.
+Only report the Planner step as blocked when both the built-in browser and the
+system default browser are unavailable or ChatGPT Web cannot be used in either
+browser. A Codex-only fallback still requires explicit user permission to
+bypass ChatGPT Web.
 
 ## ChatGPT authentication required
 
-Open the authentication page in the built-in browser.
+Open the authentication page in the currently active browser, including the
+system default browser fallback.
 
 Allow the user to authenticate directly.
 

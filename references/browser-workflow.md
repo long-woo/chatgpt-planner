@@ -1,20 +1,35 @@
 # Browser Workflow
 
 Use the desktop client's built-in browser/computer-use capability to interact
-with ChatGPT Web.
+with ChatGPT Web whenever it is available. If the built-in browser cannot be
+opened, cannot load `https://chatgpt.com`, or cannot interact with the page,
+fall back to the system default browser and continue the same workflow there.
 
 The Planner must be an actual ChatGPT Web conversation.
 
 Do not substitute normal web search for this step.
 
+The default-browser fallback is equivalent to the built-in browser for
+planning and review. Keep using the same dedicated Planner conversation when
+possible; if the conversation cannot be recovered, follow the conversation
+loss procedure in `failure-handling.md`.
+
 ## Opening ChatGPT
 
-Open:
+Open in the preferred browser:
 
 https://chatgpt.com
 
+If opening or using the preferred built-in browser fails, open that URL in the
+system default browser and continue. Do not treat a failed built-in-browser
+attempt as a planning blocker if the default browser is available.
+
+Resolve the fallback through the host's configured default-browser mechanism;
+do not hard-code a particular browser such as Edge or Chrome.
+
 If authentication is required, allow the user to authenticate directly in the
-browser.
+currently active browser. The user may complete authentication in the default
+browser fallback just as they would in the built-in browser.
 
 Never request passwords, cookies, session tokens, or authentication secrets in
 the chat.

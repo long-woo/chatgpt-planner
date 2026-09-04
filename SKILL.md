@@ -1,10 +1,12 @@
 ---
 name: chatgpt-planner
 description: >-
-  Use ChatGPT Web in the desktop client's built-in browser as the product and
-  engineering planner/reviewer, while Codex explores the repository, implements
-  code, runs tests, and fixes defects. Use for feature development, bug fixes,
-  refactors, UI changes, architecture work, and other non-trivial coding tasks.
+  Use ChatGPT Web as the product and engineering planner/reviewer, preferring
+  the desktop client's built-in browser and falling back to the system default
+  browser when the built-in browser cannot be opened or used. Codex explores
+  the repository, implements code, runs tests, and fixes defects. Use for
+  feature development, bug fixes, refactors, UI changes, architecture work,
+  and other non-trivial coding tasks.
 metadata:
   version: "1.0.0"
 ---
@@ -33,7 +35,9 @@ For normal implementation tasks:
 
 1. Codex performs lightweight repository reconnaissance.
 2. Build a concise `REPO_CONTEXT`.
-3. Open ChatGPT Web using the client's built-in browser.
+3. Open ChatGPT Web using the client's built-in browser. If that browser is
+   unavailable or unusable, open the same ChatGPT Web conversation in the
+   system default browser and continue there.
 4. Ask ChatGPT Web to produce a structured implementation plan.
 5. Codex validates that plan against repository facts.
 6. If repository facts conflict with the plan, send corrections back to ChatGPT Web.
