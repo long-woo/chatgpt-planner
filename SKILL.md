@@ -42,7 +42,10 @@ For normal implementation tasks:
 5. Codex validates that plan against repository facts.
 6. If repository facts conflict with the plan, send corrections back to ChatGPT Web.
 7. Codex implements accepted tasks in dependency order.
-8. Run appropriate tests, lint, typecheck, build, or manual verification.
+8. Run appropriate tests, lint, typecheck, build, or manual verification. For
+   Web verification, prefer `chrome-devtools-mcp` when it is installed and
+   usable; if it is unavailable, report that it was not detected and continue
+   with the available browser/computer-use tools.
 9. Send the implementation result back to the same ChatGPT Web conversation.
 10. ChatGPT Web reviews requirement coverage.
 11. If `NEEDS_FIX`, Codex performs bounded fixes and requests review again.

@@ -120,3 +120,22 @@ After Codex implementation, return to the same conversation and send:
 - relevant diff excerpts only when necessary
 
 Do not send enormous diffs unless required to determine requirement coverage.
+
+## Web verification
+
+When verifying a Web implementation in a real browser, prefer
+`chrome-devtools-mcp` when it is installed and usable. Use it for practical
+checks such as page state, console errors, network failures, DOM behavior, and
+screenshots when relevant.
+
+If `chrome-devtools-mcp` is not installed or is unavailable in the current
+environment:
+
+1. Briefly report that the optional tool was not detected.
+2. Continue the verification workflow without waiting for installation.
+3. Use the available browser/computer-use tools as the fallback.
+
+The missing optional tool must not interrupt, block, or turn the Web
+verification status into `not_run` when equivalent checks can still be
+performed with the fallback tools. Only mark an individual check as
+`not_run` when that check genuinely cannot be performed.

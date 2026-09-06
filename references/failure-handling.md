@@ -95,6 +95,13 @@ Never convert `not_run` into `passed`.
 
 State why verification was unavailable.
 
+## Optional Web verification tool unavailable
+
+`chrome-devtools-mcp` is an optional enhancement for Web verification, not a
+workflow dependency. If it is missing, briefly notify the user and continue
+with the available browser/computer-use tools. Do not pause the workflow or
+request installation unless the user explicitly asks for it.
+
 ## Scope expansion
 
 If Codex discovers adjacent problems:
