@@ -8,15 +8,30 @@ requirement.
 
 It is not a generic style reviewer.
 
+For UI-changing work, Visual QA is a preceding, focused sub-review. ChatGPT Web
+judges the screenshots or simulator/browser evidence against `.chatgpt/design-handoff.md`
+and records `.chatgpt/visual-review.md`; the final Requirement Review then checks that
+required visual fixes were addressed. Codex is responsible for collecting the
+evidence and implementing bounded fixes, not for deciding that a design
+constraint can be ignored.
+
 ## Input
 
 Provide:
 
 ORIGINAL_USER_REQUEST
 
+REQUIREMENT_REVIEW
+
+DESIGN_HANDOFF (or `NOT_APPLICABLE`)
+
+ENGINEERING_ANALYSIS
+
 ACCEPTED_PLAN
 
 IMPLEMENTATION_RESULT
+
+VISUAL_REVIEW (or `NOT_APPLICABLE`)
 
 RELEVANT_DIFF_OR_EXCERPTS
 
@@ -31,6 +46,9 @@ Review only:
 - requirement coverage
 - acceptance criteria
 - incorrect user-visible behavior
+- whether the Requirement Review's MVP boundary and non-goals were preserved
+- whether Design Handoff constraints were respected for UI work
+- whether Visual QA required fixes were addressed
 - meaningful edge cases
 - regressions implied by the requirement
 - missing required verification
@@ -94,6 +112,8 @@ Use `PASS` when:
 - all required behavior is implemented
 - acceptance criteria are satisfied
 - required verification is sufficient
+- for UI work, `.chatgpt/visual-review.md` is `PASS` and its required evidence exists
+- for non-UI work, the visual review is explicitly `NOT_APPLICABLE`
 
 ## NEEDS_FIX
 

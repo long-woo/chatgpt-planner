@@ -4,6 +4,12 @@ Apply this guidance whenever a request changes a user-visible surface in a
 mobile App, Web app, responsive site, dashboard, or other frontend product.
 It does not apply to backend-only work with no user-visible UI impact.
 
+For UI-changing work, apply this context after `.chatgpt/requirement-review.md` has
+bounded the request and before creating `.chatgpt/design-handoff.md`. The handoff is
+the durable design contract used by Engineering Analysis and implementation;
+the Visual QA record later checks the rendered result against that contract.
+See `references/design-handoff.md` and `references/visual-qa.md`.
+
 The Planner is responsible for clarifying UI behavior and design inputs, not
 for inventing a visual direction that the user did not provide.
 
@@ -100,3 +106,12 @@ For a UI-changing request, include a `ui_context` object in the Planner JSON:
 Keep this object concise. If the request has no UI impact, omit it. The
 `ui_context` object does not replace requirements, tasks, acceptance criteria,
 or blocking questions; it records the evidence and boundary behind them.
+
+## Design and visual handoff
+
+Do not treat the `ui_context` object as a substitute for the Design Handoff.
+After design decisions are made, record the design goal, key experiences,
+surface priority, immutable constraints, required states, and unresolved
+decisions in `.chatgpt/design-handoff.md`. During implementation verification, compare
+screenshots, simulator captures, or browser evidence against that file and
+record concrete deviations in `.chatgpt/visual-review.md`.

@@ -73,6 +73,40 @@ The repository summary should normally be concise.
 
 Do not paste the entire repository.
 
+## Stage handoffs
+
+Use the same dedicated Planner conversation for every applicable stage:
+
+1. Send `USER_REQUEST`, `PROJECT_CONTEXT`, `REPO_CONTEXT`, and `CONSTRAINTS`.
+2. Ask ChatGPT Web to complete Requirement Review. Codex persists its agreed
+   content as `.chatgpt/requirement-review.md` in the shared working directory.
+3. Send the requirement artifact to ChatGPT Web for product/UI design. After
+   UI design, Codex persists the agreed handoff as `.chatgpt/design-handoff.md` and
+   sends it back to ChatGPT Web.
+4. Codex writes `.chatgpt/engineering-analysis.md` from verified repository facts, then
+   sends its contents or a faithful extract before requesting the Task
+   Contract.
+5. After implementation, send verification results and visual evidence for
+   Visual QA. Codex persists ChatGPT Web's visual judgment as
+   `.chatgpt/visual-review.md` in the same shared directory before final Requirement
+   Review.
+
+Artifact filenames are stable and must not be replaced by chat history alone:
+
+- `.chatgpt/workflow-state.json`
+- `.chatgpt/requirement-review.md`
+- `.chatgpt/design-handoff.md`
+- `.chatgpt/engineering-analysis.md`
+- `.chatgpt/visual-review.md`
+
+Existing root-level artifact names are accepted as legacy fallbacks when the
+canonical `.chatgpt/` file is absent.
+
+ChatGPT Web may not have direct filesystem access. In that case, Codex reads
+the file locally and transfers its exact content or a concise faithful extract
+in the conversation. Do not upload credentials, secrets, or an entire
+repository merely to transfer an artifact.
+
 ## Repository correction
 
 ChatGPT Web may make an incorrect assumption about repository architecture.
@@ -115,11 +149,22 @@ This allows the reviewer to understand the accepted requirement and plan.
 After Codex implementation, return to the same conversation and send:
 
 - ORIGINAL_USER_REQUEST
+   - `.chatgpt/requirement-review.md`
+   - `.chatgpt/design-handoff.md` when applicable
+   - `.chatgpt/engineering-analysis.md`
 - ACCEPTED_PLAN
 - IMPLEMENTATION_RESULT
+   - `.chatgpt/visual-review.md` and its evidence when applicable
 - relevant diff excerpts only when necessary
 
 Do not send enormous diffs unless required to determine requirement coverage.
+
+## Visual evidence
+
+For UI work, send only the screenshots or focused rendered evidence needed to
+judge the Design Handoff. Each item should identify the screen/route, state,
+viewport or device, and the expected constraint it demonstrates. Use
+`references/visual-qa.md` for the review artifact and statuses.
 
 ## Web verification
 

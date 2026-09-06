@@ -8,16 +8,18 @@ description: >-
   feature development, bug fixes, refactors, UI changes, architecture work,
   and other non-trivial coding tasks.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # ChatGPT Planner
 
-Use a two-agent development workflow:
+Use a two-agent development workflow with explicit file-based handoffs:
 
-- **ChatGPT Web**: requirement understanding, planning, task decomposition,
-  acceptance criteria, final requirement review.
-- **Codex**: repository exploration, implementation, tests, verification.
+- **ChatGPT Web**: requirement review, product/UI design, planning, task
+  decomposition, acceptance criteria, visual QA judgment, and final
+  requirement review.
+- **Codex**: repository reconnaissance, engineering analysis, implementation,
+  technical tests, and visual evidence collection/fixes.
 - **Current client**: orchestrates the workflow between both agents.
 
 Core rule:
@@ -31,25 +33,72 @@ Do not let Codex silently redefine product requirements.
 
 ## Workflow
 
-For normal implementation tasks:
+Before any stage, read `references/workflow-state.md` and initialize or update
+the canonical state file at `.chatgpt/workflow-state.json` from
+`templates/workflow-state.json`. The workflow is file-based and does not
+require Git, branches, commits, or repository metadata.
 
-1. Codex performs lightweight repository reconnaissance.
-2. Build a concise `REPO_CONTEXT`.
-3. Open ChatGPT Web using the client's built-in browser. If that browser is
-   unavailable or unusable, open the same ChatGPT Web conversation in the
-   system default browser and continue there.
-4. Ask ChatGPT Web to produce a structured implementation plan.
-5. Codex validates that plan against repository facts.
-6. If repository facts conflict with the plan, send corrections back to ChatGPT Web.
-7. Codex implements accepted tasks in dependency order.
-8. Run appropriate tests, lint, typecheck, build, or manual verification. For
-   Web verification, prefer `chrome-devtools-mcp` when it is installed and
-   usable; if it is unavailable, report that it was not detected and continue
-   with the available browser/computer-use tools.
-9. Send the implementation result back to the same ChatGPT Web conversation.
-10. ChatGPT Web reviews requirement coverage.
-11. If `NEEDS_FIX`, Codex performs bounded fixes and requests review again.
-12. Finish when review returns `PASS`, or report a blocker.
+At the start of a workflow, read `references/decision-records.md`. If the
+project has `.chatgpt/decision-records.md`, ChatGPT Web and Codex must read its
+relevant `ACTIVE` records before requirement review, planning, design, analysis,
+implementation, and final review. A proposal that conflicts with an active
+record must go through re-review before downstream work continues; do not
+silently rewrite or override the record.
+
+The complete state-gated flow is:
+
+```text
+REQUIREMENT_REVIEW
+  → PRODUCT_DESIGN
+  → DESIGN
+  → DESIGN_HANDOFF
+  → ENGINEERING_ANALYSIS
+  → TASK_PLANNING
+  → IMPLEMENTATION
+  → VERIFICATION
+  → VISUAL_QA
+  → FINAL_REVIEW
+  → DONE
+```
+
+Stage contract:
+
+| Stage | Input | Output | Owner | State change |
+|---|---|---|---|---|
+| Requirement Review | User request, project context, repository facts | `.chatgpt/requirement-review.md` | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Product Design | Approved requirement review | Product behavior and MVP decisions | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Design | Product decisions, UI sources, existing patterns | UX/UI decisions and required states | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Design Handoff | Approved product/design decisions | `.chatgpt/design-handoff.md` or `NOT_APPLICABLE` record | ChatGPT Web, persisted by Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Engineering Analysis | Approved handoff, repository context | `.chatgpt/engineering-analysis.md` | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Task Planning | All approved preceding artifacts | Task Contract JSON | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Implementation | Approved Task Contract and current state | Code and implementation result | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Verification | Approved implementation | Test, build, and manual verification results | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Visual QA | Verification evidence and design handoff | `.chatgpt/visual-review.md` or `NOT_APPLICABLE` record | ChatGPT Web, evidence by Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Final Review | All artifacts, implementation result, verification, visual review | PASS/NEEDS_FIX/BLOCKED decision | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Done | Approved final review | Closed workflow state | Current client | `IN_PROGRESS` → `COMPLETED` |
+
+Every stage must have an explicit state. A stage may enter `IN_PROGRESS` only
+when the previous stage is `APPROVED`; no implementation may begin until
+Codex has read `.chatgpt/workflow-state.json`, confirmed `IMPLEMENTATION` is
+`IN_PROGRESS`, and confirmed the Task Contract and required preceding
+artifacts are approved. `BLOCKED` stops downstream work until its cause is
+resolved and the responsible stage is re-entered.
+
+Canonical artifacts live under `.chatgpt/` in the current project/work directory:
+
+- `.chatgpt/workflow-state.json`
+- `.chatgpt/requirement-review.md`
+- `.chatgpt/design-handoff.md`
+- `.chatgpt/engineering-analysis.md`
+- `.chatgpt/visual-review.md`
+- `.chatgpt/decision-records.md` (when the project uses Decision Records)
+
+For compatibility, existing root-level `requirement-review.md`,
+`design-handoff.md`, `engineering-analysis.md`, and `visual-review.md` remain
+valid legacy inputs. If a canonical file is absent, read the legacy file; do
+not delete or silently overwrite it. New executions should write canonical
+`.chatgpt/` artifacts and may mirror them to legacy paths only when an existing
+workflow explicitly depends on those paths.
 
 ## Before planning
 
@@ -64,6 +113,27 @@ Codex should collect only repository facts relevant to the requirement:
 
 Do not start implementation during reconnaissance.
 
+## Stage references
+
+Read the following references at the corresponding gates:
+
+- Overall workflow and artifact routing: `references/workflow.md` and
+  `references/index.md`
+- Decision Records and cross-iteration product/design/technical constraints:
+  `references/decision-records.md`
+- State machine and transition gates: `references/workflow-state.md`
+- Requirement Review: `references/requirement-review.md`
+- Design Handoff: `references/design-handoff.md` and, for UI work,
+  `references/ui-design-context.md`
+- Engineering Analysis: `references/engineering-analysis.md`
+- Task Contract: `references/planner-protocol.md` and
+  `references/task-contract.md`
+- Visual QA: `references/visual-qa.md`
+- Browser interaction and visual evidence:
+  `references/browser-workflow.md`
+- Failures, missing artifacts, and bounded review loops:
+  `references/failure-handling.md`
+
 ## Planning
 
 Read:
@@ -73,10 +143,6 @@ Read:
 and:
 
 `references/task-contract.md`
-
-For requests that change a mobile App or Web UI, also read:
-
-`references/ui-design-context.md`
 
 Use them when interacting with ChatGPT Web.
 
@@ -89,6 +155,11 @@ Read:
 when opening or interacting with ChatGPT Web.
 
 ## Implementation
+
+Before editing production code, read `.chatgpt/workflow-state.json` and verify that
+`IMPLEMENTATION` is `IN_PROGRESS` and every dependency is `APPROVED`. If the
+state is missing, stale, blocked, or inconsistent with the artifacts, stop and
+repair the state through the responsible stage before coding.
 
 Implement only tasks from the accepted plan.
 
@@ -107,7 +178,8 @@ After implementation and local verification, read:
 
 `references/reviewer-protocol.md`
 
-Send the implementation result to the same ChatGPT Web conversation.
+For UI changes, complete Visual QA and update `.chatgpt/visual-review.md` before
+sending the implementation result to the same ChatGPT Web conversation.
 
 Expected review statuses:
 
@@ -140,9 +212,15 @@ Codex owns repository facts.
 
 Do not claim full completion unless:
 
+- `.chatgpt/workflow-state.json` records all stages and `DONE` is `COMPLETED`
+- `.chatgpt/requirement-review.md` bounded the request
+- product/UI design completed its applicable handoff
+- `.chatgpt/engineering-analysis.md` assessed repository impact before planning
 - ChatGPT Web created the plan
 - repository facts validated the plan
 - Codex implemented the accepted tasks
 - practical verification was performed
+- `.chatgpt/visual-review.md` passed for UI work, or is marked
+  `NOT_APPLICABLE` for non-UI work
 - ChatGPT Web reviewed the implementation
 - final review returned `PASS`

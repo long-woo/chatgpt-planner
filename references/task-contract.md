@@ -9,6 +9,13 @@ ChatGPT Web must return one JSON object.
 
   "summary": "Description of the intended outcome.",
 
+  "workflow_artifacts": {
+    "requirement_review": ".chatgpt/requirement-review.md",
+    "design_handoff": ".chatgpt/design-handoff.md",
+    "engineering_analysis": ".chatgpt/engineering-analysis.md",
+    "visual_review": ".chatgpt/visual-review.md"
+  },
+
   "ui_context": {
     "surface": "mobile_app | web | both | unknown",
     "source_status": "provided_design | existing_patterns_only | no_design_source",
@@ -86,9 +93,17 @@ ChatGPT Web must return one JSON object.
 
 Requirements describe behavior, not source-file changes.
 
-For a mobile App or Web UI request, include `ui_context` immediately after
-`summary`. Follow `references/ui-design-context.md` for its values and omit
-the field when the request has no UI impact.
+The Task Contract must preserve the scope in `.chatgpt/requirement-review.md`, use
+the constraints in `.chatgpt/design-handoff.md` for UI work, and reflect the
+bounded impact in `.chatgpt/engineering-analysis.md`. Include `workflow_artifacts` immediately after
+`summary` with the shared-directory filenames. When UI work also includes
+`ui_context`, place it immediately after `workflow_artifacts`. `visual_review`
+is a forward reference for the verification stage and may contain a
+`NOT_APPLICABLE` record for non-UI work.
+
+For a mobile App or Web UI request, include `ui_context` after
+`workflow_artifacts`. Follow `references/ui-design-context.md` for its values
+and omit the field when the request has no UI impact.
 
 Every requirement must be observable or meaningful to the system.
 
@@ -103,6 +118,7 @@ Every task must:
 - avoid unrelated work
 
 Tasks should be split by coherent behavior rather than mechanically by files.
+Do not create tasks for non-goals or for speculative engineering cleanup.
 
 ## Acceptance criteria
 

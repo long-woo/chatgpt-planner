@@ -1,0 +1,133 @@
+{
+  "schema_version": "1",
+  "workflow_status": "IN_PROGRESS",
+  "current_stage": "REQUIREMENT_REVIEW",
+  "project": {
+    "name": "<project name>",
+    "work_directory": "<absolute or project-relative work directory>"
+  },
+  "stages": {
+    "REQUIREMENT_REVIEW": {
+      "state": "IN_PROGRESS",
+      "owner": "ChatGPT Web",
+      "approver": "ChatGPT Web",
+      "depends_on": [],
+      "artifact": ".chatgpt/requirement-review.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "PRODUCT_DESIGN": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web",
+      "approver": "ChatGPT Web",
+      "depends_on": ["REQUIREMENT_REVIEW"],
+      "artifact": null,
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "DESIGN": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web",
+      "approver": "ChatGPT Web",
+      "depends_on": ["PRODUCT_DESIGN"],
+      "artifact": null,
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "DESIGN_HANDOFF": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web; persisted by Codex",
+      "approver": "ChatGPT Web",
+      "depends_on": ["DESIGN"],
+      "artifact": ".chatgpt/design-handoff.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "ENGINEERING_ANALYSIS": {
+      "state": "NOT_STARTED",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": ["DESIGN_HANDOFF"],
+      "artifact": ".chatgpt/engineering-analysis.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "TASK_PLANNING": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web",
+      "approver": "ChatGPT Web",
+      "depends_on": ["ENGINEERING_ANALYSIS"],
+      "artifact": ".chatgpt/task-contract.json",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "IMPLEMENTATION": {
+      "state": "NOT_STARTED",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": ["TASK_PLANNING"],
+      "artifact": ".chatgpt/implementation-result.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "VERIFICATION": {
+      "state": "NOT_STARTED",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": ["IMPLEMENTATION"],
+      "artifact": ".chatgpt/verification-result.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "VISUAL_QA": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web; evidence by Codex",
+      "approver": "ChatGPT Web",
+      "depends_on": ["VERIFICATION"],
+      "artifact": ".chatgpt/visual-review.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "FINAL_REVIEW": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web",
+      "approver": "ChatGPT Web",
+      "depends_on": ["VISUAL_QA"],
+      "artifact": ".chatgpt/final-review.md",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "DONE": {
+      "state": "NOT_STARTED",
+      "owner": "Current client",
+      "approver": "Current client",
+      "depends_on": ["FINAL_REVIEW"],
+      "artifact": null,
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    }
+  },
+  "history": []
+}

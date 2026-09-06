@@ -13,6 +13,38 @@ Provide:
 - PROJECT_CONTEXT
 - REPO_CONTEXT
 - CONSTRAINTS
+- `.chatgpt/workflow-state.json` to confirm the current stage and approvals
+- `.chatgpt/requirement-review.md` before design/planning continues
+- `.chatgpt/design-handoff.md` after product/UI design, when applicable
+- `.chatgpt/engineering-analysis.md` before Task Contract generation
+
+The four workflow artifacts live in the shared working directory. When ChatGPT
+Web cannot inspect that directory directly, include their contents or concise
+faithful extracts in the same Planner conversation. The files remain the
+durable source of truth; do not use Git branches, commits, or repository
+metadata as the handoff mechanism.
+
+## Planner stage order
+
+For an implementation request, use this order:
+
+1. Requirement Review: clarify the user's real goal, core problem, must-have
+   requirements, non-goals, MVP boundary, and risks. Write
+   `.chatgpt/requirement-review.md` and approve the state gate.
+2. Product Design: define the intended product behavior and MVP decisions.
+3. Design: for UI work, define UX/UI direction, key states, and constraints;
+   for non-UI work, record `NOT_APPLICABLE`.
+4. Design Handoff: persist `.chatgpt/design-handoff.md` after product/UI design;
+   mark it `NOT_APPLICABLE` when no visual surface is involved.
+5. Engineering Analysis: Codex assesses repository impact and writes
+   `.chatgpt/engineering-analysis.md`. Do not implement code in this stage.
+6. Task Contract: ChatGPT Web generates the existing bounded implementation
+   plan using all applicable approved artifacts.
+
+Do not skip Requirement Review or Engineering Analysis merely because the
+requested change appears small. For non-UI requests, keep Design, Design
+Handoff, and Visual QA records explicit as `NOT_APPLICABLE`, and still approve
+their state gates so the dependency chain remains intact.
 
 Use this prompt:
 
@@ -23,7 +55,12 @@ implementation plan for Codex.
 
 Responsibilities:
 
-- Understand what the user actually wants.
+- During Requirement Review, identify what the user actually wants and bound
+  it before design.
+- During Product/UI Design, define the intended experience without inventing
+  unsupported visual direction.
+- During final review, judge requirement coverage. During Visual QA, judge
+  visual/design deviations using Codex-provided evidence.
 - Treat REPO_CONTEXT as factual information about the repository.
 - Separate product requirements from implementation details.
 - Identify assumptions.
@@ -44,6 +81,11 @@ Rules:
 - Do NOT invent repository facts.
 - Do NOT expand scope with optional improvements.
 - Do NOT require unrelated refactors.
+- Treat `.chatgpt/requirement-review.md` as the scope boundary and preserve its
+  non-goals and MVP boundary.
+- Treat `.chatgpt/design-handoff.md` constraints as normative for UI implementation.
+- Use `.chatgpt/engineering-analysis.md` to keep tasks within verified repository
+  impact; do not make Codex modify broad areas without evidence.
 - Prefer reversible assumptions over unnecessary clarification.
 - Ask a blocking question only when the missing decision materially affects
   user-visible behavior, persisted data, security, privacy, compatibility,

@@ -5,11 +5,15 @@ Use ChatGPT Web as the **planner and reviewer**, and Codex as the **implementati
 `chatgpt-planner` is a development orchestration Skill designed for workflows where:
 
 - ChatGPT Web understands the requirement
+- ChatGPT Web reviews and bounds the requirement before design
+- ChatGPT Web owns product/UI design and hands off design intent
 - ChatGPT Web breaks the requirement into implementation tasks
 - ChatGPT Web defines acceptance criteria
 - Codex inspects the actual repository
+- Codex analyzes engineering impact before task generation
 - Codex writes and modifies the code
 - Codex runs tests and verification
+- Codex collects visual evidence; ChatGPT Web performs Visual QA
 - ChatGPT Web reviews whether the final implementation satisfies the original requirement
 
 In short:
@@ -18,13 +22,32 @@ In short:
 Requirement
     ↓
 ChatGPT Web
-Planning / Task Breakdown
+Requirement Review
+    ↓
+ChatGPT Web
+Product Design
+    ↓
+ChatGPT Web
+UX / UI Design
+    ↓
+Design Handoff
+    ↓
+Codex
+Engineering Analysis
+    ↓
+ChatGPT Web
+Task Contract / Planning
     ↓
 Codex
 Implementation / Testing
     ↓
+Codex
+Verification
+    ↓
+Visual QA (UI work)
+    ↓
 ChatGPT Web
-Requirement Review
+Final Requirement Review
     ↓
 PASS / NEEDS_FIX
 ```
@@ -39,12 +62,15 @@ This Skill separates the responsibilities.
 
 Responsible for:
 
-- requirement understanding
+- requirement review and scope boundary
+- product/UI design
+- design handoff
 - product behavior
 - solution planning
 - task decomposition
 - edge cases
 - acceptance criteria
+- visual QA judgment
 - final requirement review
 
 ### Codex
@@ -54,9 +80,11 @@ Responsible for:
 - repository exploration
 - locating relevant code
 - understanding the current architecture
+- engineering impact analysis
 - implementing the plan
 - writing tests
 - running lint/typecheck/build/tests
+- collecting screenshots or simulator/browser evidence
 - reporting repository facts
 
 The key principle is:
@@ -88,18 +116,39 @@ Directory:
 chatgpt-planner/
 ├── README.md
 ├── SKILL.md
-└── references/
-    ├── planner-protocol.md
-    ├── task-contract.md
-    ├── reviewer-protocol.md
-    ├── browser-workflow.md
-    ├── failure-handling.md
-    └── ui-design-context.md
+├── references/
+│   ├── workflow.md
+│   ├── workflow-state.md
+│   ├── requirement-review.md
+│   ├── design-handoff.md
+│   ├── engineering-analysis.md
+│   ├── visual-qa.md
+│   ├── planner-protocol.md
+│   ├── task-contract.md
+│   ├── reviewer-protocol.md
+│   ├── browser-workflow.md
+│   ├── failure-handling.md
+│   ├── ui-design-context.md
+│   ├── decision-records.md
+│   └── index.md
+└── templates/
+    ├── workflow-state.json
+    ├── requirement-review.md
+    ├── design-handoff.md
+    ├── engineering-analysis.md
+    ├── decision-records.md
+    └── visual-review.md
 ```
 
 The Agent executes the workflow according to `SKILL.md`.
 
 `references/` contains detailed protocols that are loaded only when needed.
+`templates/` contains the files copied into a project's `.chatgpt/` workflow
+directory. The canonical runtime artifacts are `.chatgpt/workflow-state.json`,
+`.chatgpt/requirement-review.md`, `.chatgpt/design-handoff.md`,
+`.chatgpt/engineering-analysis.md`, and `.chatgpt/visual-review.md`. Projects
+that use cross-iteration Decision Records also maintain
+`.chatgpt/decision-records.md` from `templates/decision-records.md`.
 
 For mobile App or Web UI requests, `ui-design-context.md` defines the allowed
 UI information sources and prevents the Planner from inventing visual
@@ -152,7 +201,20 @@ The workflow becomes:
    - REPO_CONTEXT
    - CONSTRAINTS
 
-5. ChatGPT Web creates:
+5. ChatGPT Web completes Requirement Review; Codex persists
+   `.chatgpt/requirement-review.md` with:
+   - real user goal
+   - core requirements
+   - non-goals
+   - MVP boundary
+
+6. ChatGPT Web performs product/UI design and defines the Design Handoff;
+   Codex persists `.chatgpt/design-handoff.md`. For non-UI work the artifact is marked
+   `NOT_APPLICABLE`.
+
+7. Codex analyzes repository impact and creates `.chatgpt/engineering-analysis.md`.
+
+8. ChatGPT Web creates the existing Task Contract with:
    - requirements
    - assumptions
    - non-goals
@@ -160,28 +222,49 @@ The workflow becomes:
    - acceptance criteria
    - verification plan
 
-6. Codex validates the plan against the repository
+9. Codex validates the plan against the repository
 
-7. Codex implements the tasks
+10. Codex implements the tasks
 
-8. Codex runs:
+11. Codex runs:
    - tests
    - typecheck
    - lint
    - build
    where applicable
 
-9. Implementation result is sent back to ChatGPT Web
+12. For UI work, Codex collects visual evidence, ChatGPT Web performs Visual
+    QA, and Codex persists or updates `.chatgpt/visual-review.md`; non-UI work records
+    `NOT_APPLICABLE`.
 
-10. ChatGPT Web returns:
+13. Implementation result and review artifacts are sent back to ChatGPT Web
+
+14. ChatGPT Web returns:
     PASS
     or
     NEEDS_FIX
 
-11. Codex fixes required issues if necessary
+15. Codex fixes required issues if necessary
 
-12. Final result is returned to the user
+16. Final result is returned to the user
+
 ```
+
+All stage artifacts use the shared working directory as the handoff boundary:
+
+```text
+<shared-work-dir>/
+└── .chatgpt/
+    ├── workflow-state.json
+    ├── requirement-review.md
+    ├── design-handoff.md
+    ├── engineering-analysis.md
+    └── visual-review.md
+```
+
+The workflow does not require a Git repository. ChatGPT Web receives the
+artifact contents or faithful extracts through the same Planner conversation
+when it cannot directly inspect the shared directory.
 
 ## Usage modes
 
@@ -204,6 +287,11 @@ Typical flow:
 ```text
 Repository reconnaissance
 → ChatGPT Web
+→ Requirement Review
+→ Product/UI Design
+→ Design Handoff
+→ Engineering Analysis
+→ Task Contract
 → Implementation plan
 ```
 
@@ -222,8 +310,11 @@ Flow:
 ```text
 Repository
 → ChatGPT Web Planner
+→ Requirement Review
+→ Design Handoff (UI)
+→ Engineering Analysis
 → Codex
-→ Tests
+→ Tests / Visual QA (UI)
 → ChatGPT Web Reviewer
 ```
 
@@ -246,6 +337,9 @@ Requirement
 Current implementation
 +
 Verification
+→ Requirement Review
+→ Design Handoff (UI)
+→ Engineering Analysis
 → ChatGPT Web Reviewer
 ```
 

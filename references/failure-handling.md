@@ -45,6 +45,25 @@ If it remains malformed:
 - mark missing fields
 - do not fabricate requirements or acceptance criteria
 
+## Missing or conflicting stage artifact
+
+The shared working directory is the durable handoff boundary. If one of the
+required artifacts is missing, unreadable, or materially inconsistent:
+
+1. stop before the next dependent stage;
+2. recover or rewrite only the affected artifact with the responsible agent;
+3. preserve the current user's scope and verified repository facts;
+4. continue only when the artifact's status is usable.
+
+The required canonical files are `.chatgpt/workflow-state.json`,
+`.chatgpt/requirement-review.md`, `.chatgpt/design-handoff.md`,
+`.chatgpt/engineering-analysis.md`, and `.chatgpt/visual-review.md`. A non-UI request
+may use `NOT_APPLICABLE` Design, Design Handoff, or Visual QA records, but
+must record that status and approve the corresponding state gates. Existing
+root-level artifacts are valid legacy fallbacks when the canonical file is
+absent.
+Do not silently substitute chat memory, Git state, or invented content.
+
 ## Repository contradicts Planner
 
 Repository facts are authoritative for repository state.
@@ -95,12 +114,18 @@ Never convert `not_run` into `passed`.
 
 State why verification was unavailable.
 
+For Visual QA, distinguish `BLOCKED` from `PASS`: missing screenshots,
+simulator access, or browser access means the visual check was not established.
+Use available fallback browser/computer-use tools where possible, and record
+the specific gap in `.chatgpt/visual-review.md`.
+
 ## Optional Web verification tool unavailable
 
 `chrome-devtools-mcp` is an optional enhancement for Web verification, not a
-workflow dependency. If it is missing, briefly notify the user and continue
-with the available browser/computer-use tools. Do not pause the workflow or
-request installation unless the user explicitly asks for it.
+workflow dependency. If it is missing, notify the user that installation is
+recommended for enhanced inspection, then continue with the available
+browser/computer-use tools. Do not pause the workflow solely to wait for the
+installation.
 
 ## Scope expansion
 
@@ -130,6 +155,10 @@ prefer:
 3. repository conventions
 
 Report the remaining disagreement.
+
+Visual QA fixes are subject to the same bounded loop. A visual preference that
+is not supported by the Design Handoff or Requirement Review is not a reason to
+expand scope.
 
 ## Destructive changes
 
