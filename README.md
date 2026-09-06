@@ -1,5 +1,7 @@
 # ChatGPT Planner
 
+<img src="./assets/logo.png" width="160" center />
+
 Use ChatGPT Web as the **planner and reviewer**, and Codex as the **implementation engineer**.
 
 `chatgpt-planner` is a development orchestration Skill designed for workflows where:
