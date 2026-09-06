@@ -71,6 +71,10 @@ and:
 
 `references/task-contract.md`
 
+For requests that change a mobile App or Web UI, also read:
+
+`references/ui-design-context.md`
+
 Use them when interacting with ChatGPT Web.
 
 ## Browser interaction

@@ -9,6 +9,19 @@ ChatGPT Web must return one JSON object.
 
   "summary": "Description of the intended outcome.",
 
+  "ui_context": {
+    "surface": "mobile_app | web | both | unknown",
+    "source_status": "provided_design | existing_patterns_only | no_design_source",
+    "sources": [
+      {
+        "type": "figma | screenshot | existing_ui | design_system | user_requirement | platform_convention",
+        "status": "confirmed | inferred | missing",
+        "description": "What this source establishes or fails to establish"
+      }
+    ],
+    "unresolved_visual_decisions": []
+  },
+
   "assumptions": [
     "Explicit assumption"
   ],
@@ -72,6 +85,10 @@ ChatGPT Web must return one JSON object.
 ## Requirements
 
 Requirements describe behavior, not source-file changes.
+
+For a mobile App or Web UI request, include `ui_context` immediately after
+`summary`. Follow `references/ui-design-context.md` for its values and omit
+the field when the request has no UI impact.
 
 Every requirement must be observable or meaningful to the system.
 

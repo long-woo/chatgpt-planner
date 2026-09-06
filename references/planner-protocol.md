@@ -34,6 +34,9 @@ Responsibilities:
 - Give every task concrete acceptance criteria.
 - Define verification expectations.
 - Identify meaningful migration, compatibility, or regression risks.
+- For mobile App or Web UI work, identify the available UI design sources and
+  preserve the boundary between confirmed design input, repository patterns,
+  and unresolved visual decisions. Read `references/ui-design-context.md`.
 
 Rules:
 
@@ -86,3 +89,12 @@ Use `blocking_questions` only for genuinely product-defining decisions.
 Optional ideas must not silently become implementation tasks.
 
 Put them in `non_goals` or leave them out entirely.
+
+## UI context
+
+When the request changes a mobile App or Web UI, include the `ui_context`
+object defined in `references/ui-design-context.md` in the JSON response. Do
+not invent a visual system when no Figma, mockup, screenshot, design system,
+or established product pattern is available. Plan observable UI behavior and
+reuse confirmed existing patterns, while recording unresolved visual choices
+as missing design input.

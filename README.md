@@ -93,12 +93,17 @@ chatgpt-planner/
     ├── task-contract.md
     ├── reviewer-protocol.md
     ├── browser-workflow.md
-    └── failure-handling.md
+    ├── failure-handling.md
+    └── ui-design-context.md
 ```
 
 The Agent executes the workflow according to `SKILL.md`.
 
 `references/` contains detailed protocols that are loaded only when needed.
+
+For mobile App or Web UI requests, `ui-design-context.md` defines the allowed
+UI information sources and prevents the Planner from inventing visual
+direction when no design reference is available.
 
 ## Usage
 
