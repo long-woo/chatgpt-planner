@@ -2,7 +2,47 @@
 
 <img src="./assets/logo.png" width="160" center />
 
-Use ChatGPT Web as the **planner and reviewer**, and Codex as the **implementation engineer**.
+Use ChatGPT Web as the **planner and reviewer**, and Codex as the
+**implementation engineer**, with a compact path for small changes and a
+comprehensive path for broader work.
+
+## Workflow profiles
+
+The skill selects a workflow by risk before creating artifacts.
+
+### Lite
+
+Use for a clear, localized, low-risk change with objective targeted
+verification and no new product/UI decision, public API, persistence,
+migration, authentication, security, privacy, billing, payment, or destructive
+impact.
+
+```text
+Triage
+→ Compact Change Contract
+→ Implementation
+→ Verification
+→ Conditional Final Review
+→ Done
+```
+
+Lite normally uses one ChatGPT Web planning interaction and two artifacts:
+
+```text
+.chatgpt/change-contract.json
+.chatgpt/change-result.json
+```
+
+The second ChatGPT Web review is skipped only when all acceptance criteria and
+required checks pass, the implementation stayed within the contract, and no
+product or visual judgment remains unresolved.
+
+### Comprehensive
+
+Use when Lite eligibility is false or uncertain, including broader features,
+new UI direction, cross-module work, architecture changes, data migrations,
+public API changes, and security-sensitive work. This profile uses the full
+workflow described below.
 
 `chatgpt-planner` is a development orchestration Skill designed for workflows where:
 
@@ -120,6 +160,7 @@ chatgpt-planner/
 ├── SKILL.md
 ├── references/
 │   ├── workflow.md
+│   ├── lite-workflow.md
 │   ├── workflow-state.md
 │   ├── requirement-review.md
 │   ├── design-handoff.md
@@ -135,6 +176,9 @@ chatgpt-planner/
 │   └── index.md
 └── templates/
     ├── workflow-state.json
+    ├── lite-workflow-state.json
+    ├── change-contract.json
+    ├── change-result.json
     ├── requirement-review.md
     ├── design-handoff.md
     ├── engineering-analysis.md
@@ -146,7 +190,9 @@ The Agent executes the workflow according to `SKILL.md`.
 
 `references/` contains detailed protocols that are loaded only when needed.
 `templates/` contains the files copied into a project's `.chatgpt/` workflow
-directory. The canonical runtime artifacts are `.chatgpt/workflow-state.json`,
+directory. Lite uses `.chatgpt/workflow-state.json`,
+`.chatgpt/change-contract.json`, and `.chatgpt/change-result.json`.
+Comprehensive work uses `.chatgpt/workflow-state.json`,
 `.chatgpt/requirement-review.md`, `.chatgpt/design-handoff.md`,
 `.chatgpt/engineering-analysis.md`, and `.chatgpt/visual-review.md`. Projects
 that use cross-iteration Decision Records also maintain
@@ -177,9 +223,22 @@ When the daily recommendation limit has been reached,
 reopening the app after some time automatically fetches another recommendation.
 ```
 
-The Skill should automatically execute the planning and implementation workflow.
+The Skill should automatically select Lite or Comprehensive and execute the
+corresponding planning and implementation workflow.
 
 ## Example
+
+Small bug fixes normally use Lite:
+
+```text
+Bug report
+→ Lite triage
+→ One compact ChatGPT Web plan
+→ Codex implementation and targeted verification
+→ Done, or conditional ChatGPT Web review when evidence is insufficient
+```
+
+The following is a comprehensive example.
 
 User request:
 
@@ -252,7 +311,18 @@ The workflow becomes:
 
 ```
 
-All stage artifacts use the shared working directory as the handoff boundary:
+All stage artifacts use the shared working directory as the handoff boundary.
+For Lite work:
+
+```text
+<shared-work-dir>/
+└── .chatgpt/
+    ├── workflow-state.json
+    ├── change-contract.json
+    └── change-result.json
+```
+
+For comprehensive work:
 
 ```text
 <shared-work-dir>/

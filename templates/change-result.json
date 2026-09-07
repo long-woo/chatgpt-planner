@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "profile": "LITE",
+  "status": "in_progress",
+  "changed_files": [],
+  "acceptance_results": [
+    {
+      "criterion_id": "AC-1",
+      "status": "not_run",
+      "evidence": ""
+    }
+  ],
+  "commands": [
+    {
+      "command": "",
+      "status": "not_run",
+      "exit_code": null,
+      "summary": ""
+    }
+  ],
+  "manual_checks": [],
+  "plan_deviations": [],
+  "discovered_issues": [],
+  "review_required": false,
+  "review_reasons": [],
+  "review_status": "not_required",
+  "review_summary": "",
+  "required_fixes": []
+}

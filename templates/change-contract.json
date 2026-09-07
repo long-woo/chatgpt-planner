@@ -1,0 +1,34 @@
+{
+  "schema_version": "1",
+  "profile": "LITE",
+  "summary": "",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "description": ""
+    }
+  ],
+  "scope": [],
+  "non_goals": [],
+  "repository_facts": [
+    {
+      "fact": "",
+      "source": ""
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "requirement_ids": ["REQ-1"],
+      "description": ""
+    }
+  ],
+  "verification": [
+    {
+      "type": "test",
+      "command_or_check": "",
+      "required": true
+    }
+  ],
+  "escalate_if": []
+}

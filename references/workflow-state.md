@@ -1,8 +1,22 @@
 # Workflow State
 
-This reference defines the file-based state machine for ChatGPT Web and Codex
-collaboration. The state file is project-local and must work in a directory
-that is not a Git repository.
+This reference defines the comprehensive file-based state machine for ChatGPT
+Web and Codex collaboration. Small eligible changes use the state machine in
+`lite-workflow.md`. Both state files are project-local and must work in a
+directory that is not a Git repository.
+
+## Profile routing
+
+Every new state file declares `workflow_profile` as `LITE` or
+`COMPREHENSIVE`. Read `lite-workflow.md` and perform a preliminary risk screen.
+When the request appears eligible, initialize the Lite state and complete its
+`TRIAGE` gate before planning or implementation. Existing schema-version-1
+state files without `workflow_profile` are treated as comprehensive workflows.
+
+Initialize a Lite workflow from `templates/lite-workflow-state.json`. Initialize
+a comprehensive workflow from `templates/workflow-state.json`. Do not replace
+an active state file with a fresh template. Resume it or follow the Lite
+escalation procedure while preserving its artifacts and history.
 
 ## Canonical state
 
@@ -30,6 +44,10 @@ The allowed stage states are:
   capability, or verification is unavailable.
 - `COMPLETED`: the stage is closed. Use this for `DONE`; keep earlier stages
   `APPROVED` so their gate evidence remains visible.
+
+Lite additionally uses `SKIPPED` for conditional Final Review when the skip
+conditions in `lite-workflow.md` are all satisfied. `SKIPPED` is not a general
+mechanism for bypassing comprehensive stages.
 
 ## Stage ownership
 

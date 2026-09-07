@@ -5,8 +5,9 @@ are relative to this skill directory.
 
 | Reference | Purpose | Read when | Generates or governs |
 |---|---|---|---|
+| `lite-workflow.md` | Lite eligibility, compact planning, verification, conditional review, and escalation | Before selecting a workflow profile and throughout a Lite change | `.chatgpt/change-contract.json`, `.chatgpt/change-result.json`, Lite state |
 | `workflow.md` | High-level two-agent collaboration flow and responsibilities | Starting or resuming a project workflow | Overall stage sequence |
-| `workflow-state.md` | State machine, owners, transition gates, and update protocol | Before initializing or changing any stage | `.chatgpt/workflow-state.json` |
+| `workflow-state.md` | Comprehensive state machine, owners, transition gates, and update protocol | Before initializing or changing a comprehensive stage | `.chatgpt/workflow-state.json` |
 | `decision-records.md` | Durable confirmed product, design, and technical decisions across iterations | At workflow start and whenever a proposal may affect an existing decision | `.chatgpt/decision-records.md` |
 | `requirement-review.md` | Scope-control and requirement review rules | At `REQUIREMENT_REVIEW` | `.chatgpt/requirement-review.md` |
 | `ui-design-context.md` | Evidence and boundaries for UI design decisions | Before UI design and handoff | `ui_context` in Task Contract |

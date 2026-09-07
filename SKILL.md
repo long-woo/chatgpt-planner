@@ -1,14 +1,13 @@
 ---
 name: chatgpt-planner
 description: >-
-  Use ChatGPT Web as the product and engineering planner/reviewer, preferring
-  the desktop client's built-in browser and falling back to the system default
-  browser when the built-in browser cannot be opened or used. Codex explores
-  the repository, implements code, runs tests, and fixes defects. Use for
-  feature development, bug fixes, refactors, UI changes, architecture work,
-  and other non-trivial coding tasks.
+  Use a risk-adaptive ChatGPT Web and Codex workflow for software changes.
+  Small, low-risk changes use a compact planning and verification path;
+  broader, ambiguous, visual, data, security, or architecture changes use the
+  comprehensive planner/reviewer workflow. Codex inspects and implements the
+  repository while ChatGPT Web owns product intent and bounded planning.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # ChatGPT Planner
@@ -31,12 +30,60 @@ Do not let ChatGPT Web directly modify production code.
 
 Do not let Codex silently redefine product requirements.
 
-## Workflow
+## Select a workflow profile
+
+Before creating implementation artifacts, perform a preliminary risk screen.
+If the request appears Lite-eligible, initialize the Lite state and complete
+its `TRIAGE` gate. Otherwise initialize the comprehensive workflow directly.
+
+Use `LITE` only when the behavior is clear, the impact is localized and easy
+to revert, objective targeted verification is available, and the change does
+not introduce material product/UI decisions or affect public APIs,
+persistence, migration, authentication, authorization, privacy, security,
+billing, payment, or destructive operations. The expected production-code
+impact should normally be one module and roughly three files or fewer, but
+risk takes priority over file count.
+
+Read `references/lite-workflow.md` before selecting or operating the Lite
+profile. Initialize `.chatgpt/workflow-state.json` from
+`templates/lite-workflow-state.json` for an eligible Lite change.
+
+Use `COMPREHENSIVE` when any Lite criterion is false or uncertain. Existing
+state files without `workflow_profile` are comprehensive workflows for
+backward compatibility. Never downgrade an active comprehensive workflow to
+Lite merely to bypass a gate.
+
+## Lite workflow
+
+The Lite flow is:
+
+```text
+TRIAGE
+  -> COMPACT_PLAN
+  -> IMPLEMENTATION
+  -> VERIFICATION
+  -> FINAL_REVIEW (conditional)
+  -> DONE
+```
+
+ChatGPT Web produces one compact plan. Codex persists it as
+`.chatgpt/change-contract.json`, implements within that boundary, and records
+implementation and verification in `.chatgpt/change-result.json`.
+
+Skip the second ChatGPT Web review only when all acceptance criteria pass,
+verification is complete, implementation has no plan deviation, no unresolved
+product or visual judgment was introduced, and Codex has no material
+uncertainty. Record the skipped review and its reason in state. Otherwise run
+the final review or escalate to the comprehensive workflow as specified in
+`references/lite-workflow.md`.
+
+## Comprehensive workflow
 
 Before any stage, read `references/workflow-state.md` and initialize or update
 the canonical state file at `.chatgpt/workflow-state.json` from
-`templates/workflow-state.json`. The workflow is file-based and does not
-require Git, branches, commits, or repository metadata.
+`templates/workflow-state.json`. Set `workflow_profile` to `COMPREHENSIVE`.
+The workflow is file-based and does not require Git, branches, commits, or
+repository metadata.
 
 At the start of a workflow, read `references/decision-records.md`. If the
 project has `.chatgpt/decision-records.md`, ChatGPT Web and Codex must read its
@@ -84,7 +131,8 @@ Codex has read `.chatgpt/workflow-state.json`, confirmed `IMPLEMENTATION` is
 artifacts are approved. `BLOCKED` stops downstream work until its cause is
 resolved and the responsible stage is re-entered.
 
-Canonical artifacts live under `.chatgpt/` in the current project/work directory:
+Canonical comprehensive artifacts live under `.chatgpt/` in the current
+project/work directory:
 
 - `.chatgpt/workflow-state.json`
 - `.chatgpt/requirement-review.md`
@@ -117,6 +165,8 @@ Do not start implementation during reconnaissance.
 
 Read the following references at the corresponding gates:
 
+- Lite eligibility, compact artifacts, conditional review, and escalation:
+  `references/lite-workflow.md`
 - Overall workflow and artifact routing: `references/workflow.md` and
   `references/index.md`
 - Decision Records and cross-iteration product/design/technical constraints:
@@ -136,7 +186,10 @@ Read the following references at the corresponding gates:
 
 ## Planning
 
-Read:
+For Lite work, read `references/lite-workflow.md` and use
+`templates/change-contract.json`.
+
+For comprehensive work, read:
 
 `references/planner-protocol.md`
 
@@ -144,7 +197,7 @@ and:
 
 `references/task-contract.md`
 
-Use them when interacting with ChatGPT Web.
+Use them when interacting with ChatGPT Web for comprehensive planning.
 
 ## Browser interaction
 
@@ -156,10 +209,13 @@ when opening or interacting with ChatGPT Web.
 
 ## Implementation
 
-Before editing production code, read `.chatgpt/workflow-state.json` and verify that
-`IMPLEMENTATION` is `IN_PROGRESS` and every dependency is `APPROVED`. If the
-state is missing, stale, blocked, or inconsistent with the artifacts, stop and
-repair the state through the responsible stage before coding.
+Before editing production code, read `.chatgpt/workflow-state.json` and verify
+the selected profile, confirm `IMPLEMENTATION` is `IN_PROGRESS`, and confirm
+every dependency is `APPROVED`. For Lite, also confirm
+`.chatgpt/change-contract.json` is usable. For comprehensive work, confirm the
+Task Contract and required preceding artifacts are approved. If the state is
+missing, stale, blocked, or inconsistent with the artifacts, stop and repair
+the state through the responsible stage before coding.
 
 Implement only tasks from the accepted plan.
 
@@ -174,7 +230,10 @@ Do not perform unrelated cleanup unless it blocks the requested work.
 
 ## Review
 
-After implementation and local verification, read:
+For Lite work, apply the conditional review gate in
+`references/lite-workflow.md`.
+
+After comprehensive implementation and local verification, read:
 
 `references/reviewer-protocol.md`
 
@@ -210,7 +269,17 @@ Codex owns repository facts.
 
 ## Completion
 
-Do not claim full completion unless:
+For Lite work, do not claim full completion unless:
+
+- `.chatgpt/workflow-state.json` records `workflow_profile: LITE` and `DONE` is
+  `COMPLETED`
+- `.chatgpt/change-contract.json` bounds the request
+- `.chatgpt/change-result.json` maps every acceptance criterion to evidence
+- all required verification passed
+- the implementation has no unresolved plan deviation
+- Final Review is `APPROVED` or validly `SKIPPED` with a recorded reason
+
+For comprehensive work, do not claim full completion unless:
 
 - `.chatgpt/workflow-state.json` records all stages and `DONE` is `COMPLETED`
 - `.chatgpt/requirement-review.md` bounded the request

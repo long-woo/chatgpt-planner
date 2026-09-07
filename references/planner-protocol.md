@@ -1,5 +1,8 @@
 # Planner Protocol
 
+This protocol applies to the comprehensive workflow. For an eligible small
+change, use `lite-workflow.md` and the Change Contract instead.
+
 ChatGPT Web acts as the Product & Engineering Planner.
 
 It should determine what should be implemented, but should not write production

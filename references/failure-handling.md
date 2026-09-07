@@ -45,6 +45,28 @@ If it remains malformed:
 - mark missing fields
 - do not fabricate requirements or acceptance criteria
 
+For Lite work, apply the same retry rule to the Change Contract. If a valid,
+bounded contract still cannot be obtained, escalate to the comprehensive
+workflow or mark `COMPACT_PLAN` as `BLOCKED`; do not implement from malformed
+fragments.
+
+## Lite scope expansion
+
+When a Lite change crosses an eligibility boundary or an `escalate_if`
+condition:
+
+1. stop implementation before making broader changes;
+2. copy `.chatgpt/workflow-state.json` to
+   `.chatgpt/lite-workflow-state.json`, and preserve the Change Contract,
+   Change Result, and existing code changes;
+3. record the discovered impact and reason for escalation;
+4. initialize the comprehensive state while retaining a history reference to
+   the Lite artifacts;
+5. resume at the earliest stage responsible for the newly discovered decision.
+
+Do not discard existing user changes or silently continue under the Lite
+contract.
+
 ## Missing or conflicting stage artifact
 
 The shared working directory is the durable handoff boundary. If one of the

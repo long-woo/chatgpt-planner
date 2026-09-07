@@ -1,0 +1,79 @@
+{
+  "schema_version": "2",
+  "workflow_profile": "LITE",
+  "workflow_status": "IN_PROGRESS",
+  "current_stage": "TRIAGE",
+  "project": {
+    "name": "",
+    "work_directory": ""
+  },
+  "stages": {
+    "TRIAGE": {
+      "state": "IN_PROGRESS",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": [],
+      "artifact": null,
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "COMPACT_PLAN": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web; persisted by Codex",
+      "approver": "Codex validates against user request and repository facts",
+      "depends_on": ["TRIAGE"],
+      "artifact": ".chatgpt/change-contract.json",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "IMPLEMENTATION": {
+      "state": "NOT_STARTED",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": ["COMPACT_PLAN"],
+      "artifact": ".chatgpt/change-result.json",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "VERIFICATION": {
+      "state": "NOT_STARTED",
+      "owner": "Codex",
+      "approver": "Codex",
+      "depends_on": ["IMPLEMENTATION"],
+      "artifact": ".chatgpt/change-result.json",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "FINAL_REVIEW": {
+      "state": "NOT_STARTED",
+      "owner": "ChatGPT Web when required; otherwise Current client",
+      "approver": "ChatGPT Web when required; otherwise Current client",
+      "depends_on": ["VERIFICATION"],
+      "artifact": ".chatgpt/change-result.json",
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "DONE": {
+      "state": "NOT_STARTED",
+      "owner": "Current client",
+      "approver": "Current client",
+      "depends_on": ["FINAL_REVIEW"],
+      "artifact": null,
+      "started_at": null,
+      "approved_at": null,
+      "completed_at": null,
+      "notes": ""
+    }
+  },
+  "history": []
+}

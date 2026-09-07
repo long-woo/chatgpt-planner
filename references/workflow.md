@@ -1,7 +1,20 @@
 # Collaboration Workflow
 
-This is the high-level operating guide. Read `workflow-state.md` for the
-machine-readable gate rules and `index.md` to route detailed stage protocols.
+This is the high-level operating guide for comprehensive work. First read
+`lite-workflow.md` to determine whether the request qualifies for the compact
+path. Read `workflow-state.md` for the comprehensive machine-readable gate
+rules and `index.md` to route detailed stage protocols.
+
+## Profile routing
+
+Use the Lite flow for small, clear, low-risk, localized, objectively verifiable
+changes. It combines requirement review, repository analysis, and task
+planning into one Change Contract and combines implementation reporting and
+verification into one Change Result.
+
+Use this comprehensive flow whenever Lite eligibility is false or uncertain.
+If a Lite implementation discovers broader impact, preserve its artifacts and
+escalate according to `lite-workflow.md` before continuing.
 
 ## Responsibilities
 

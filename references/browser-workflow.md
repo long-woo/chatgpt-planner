@@ -75,7 +75,14 @@ Do not paste the entire repository.
 
 ## Stage handoffs
 
-Use the same dedicated Planner conversation for every applicable stage:
+For a Lite workflow, use one Planner interaction before implementation. Send
+the user request, concise verified repository facts, Lite constraints, and the
+Change Contract schema. Persist the returned JSON as
+`.chatgpt/change-contract.json`. Return for Final Review only when required by
+`lite-workflow.md`.
+
+For a comprehensive workflow, use the same dedicated Planner conversation for
+every applicable stage:
 
 1. Send `USER_REQUEST`, `PROJECT_CONTEXT`, `REPO_CONTEXT`, and `CONSTRAINTS`.
 2. Ask ChatGPT Web to complete Requirement Review. Codex persists its agreed
@@ -94,6 +101,8 @@ Use the same dedicated Planner conversation for every applicable stage:
 Artifact filenames are stable and must not be replaced by chat history alone:
 
 - `.chatgpt/workflow-state.json`
+- `.chatgpt/change-contract.json` and `.chatgpt/change-result.json` for Lite
+  work
 - `.chatgpt/requirement-review.md`
 - `.chatgpt/design-handoff.md`
 - `.chatgpt/engineering-analysis.md`

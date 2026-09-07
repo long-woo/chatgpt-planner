@@ -1,5 +1,6 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
+  "workflow_profile": "COMPREHENSIVE",
   "workflow_status": "IN_PROGRESS",
   "current_stage": "REQUIREMENT_REVIEW",
   "project": {

@@ -1,5 +1,8 @@
 # Reviewer Protocol
 
+This protocol applies to comprehensive Final Review. Lite work uses the
+conditional review rules and compact inputs in `lite-workflow.md`.
+
 After Codex finishes implementation and local verification, ChatGPT Web becomes
 the Requirement Reviewer.
 
