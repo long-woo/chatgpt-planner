@@ -26,6 +26,10 @@ Core rule:
 > ChatGPT Web decides what should be built.
 > Codex determines what the repository actually contains and how to implement it.
 
+ChatGPT Web mode constraint:
+
+> All planning and review must happen in a normal ChatGPT Web conversation using Chat mode. Do not use Work mode, create a Work task, or switch an existing Planner conversation into Work mode.
+
 Do not let ChatGPT Web directly modify production code.
 
 Do not let Codex silently redefine product requirements.

@@ -9,6 +9,12 @@ The Planner must be an actual ChatGPT Web conversation.
 
 Do not substitute normal web search for this step.
 
+Use Chat mode only. Before sending any planning or review message, verify that
+the ChatGPT Web composer is in the normal `聊天`/Chat mode and that `工作`/Work
+mode is not selected. Never create a Work task or continue planning in a Work
+conversation; if an existing candidate is in Work mode, open a new normal chat
+and keep the dedicated Planner conversation there.
+
 The default-browser fallback is equivalent to the built-in browser for
 planning and review. Keep using the same dedicated Planner conversation when
 possible; if the conversation cannot be recovered, follow the conversation
