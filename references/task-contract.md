@@ -2,6 +2,12 @@
 
 ChatGPT Web must return one JSON object.
 
+Normally ChatGPT Web creates the contract. If its JSON output remains invalid
+after the bounded recovery procedure, Codex may create a deterministic
+recovered contract only as specified in `failure-handling.md`. The state file,
+not the JSON schema, records whether the contract came from ChatGPT Web or
+`CODEX_RECOVERY_FROM_APPROVED_ARTIFACTS` and identifies its approved sources.
+
 ## Schema
 
 {
@@ -158,3 +164,13 @@ Do not invent unnecessary sequencing.
 
 A blocking question is justified only if Codex cannot safely proceed without a
 material product or architecture decision.
+
+## Recovered contracts
+
+A recovered contract has the same schema and quality bar as a Planner contract.
+It may only restate approved requirement/design decisions and verified
+repository facts as bounded tasks and checks. It must not resolve an ambiguous
+product choice, add convenience work, or turn malformed response text into new
+requirements. When that information is insufficient, return to the earliest
+upstream stage that owns the missing decision instead of blocking on JSON
+formatting.

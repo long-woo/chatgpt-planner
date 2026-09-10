@@ -37,6 +37,12 @@ The second ChatGPT Web review is skipped only when all acceptance criteria and
 required checks pass, the implementation stayed within the contract, and no
 product or visual judgment remains unresolved.
 
+If a Planner response is malformed, the workflow first performs lossless JSON
+normalization and one bounded repair request (two total attempts). When
+approved inputs already fully settle the scope, Codex can then generate a
+schema-valid, traceable recovery contract; malformed serialization by itself
+does not deadlock an otherwise implementable request.
+
 ### Comprehensive
 
 Use when Lite eligibility is false or uncertain, including broader features,

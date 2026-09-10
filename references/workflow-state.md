@@ -58,7 +58,7 @@ mechanism for bypassing comprehensive stages.
 | `DESIGN` | ChatGPT Web | ChatGPT Web | UX/UI decisions, states, and constraints |
 | `DESIGN_HANDOFF` | ChatGPT Web; Codex persists | ChatGPT Web | `.chatgpt/design-handoff.md` or an explicit `NOT_APPLICABLE` record |
 | `ENGINEERING_ANALYSIS` | Codex | Codex | `.chatgpt/engineering-analysis.md` |
-| `TASK_PLANNING` | ChatGPT Web | ChatGPT Web | Accepted Task Contract JSON |
+| `TASK_PLANNING` | ChatGPT Web; Codex only for deterministic malformed-response recovery | ChatGPT Web; Codex validates a recovery contract | Accepted Task Contract JSON |
 | `IMPLEMENTATION` | Codex | Codex | Code changes and implementation result |
 | `VERIFICATION` | Codex | Codex | Test, build, and manual verification results |
 | `VISUAL_QA` | ChatGPT Web; Codex supplies evidence | ChatGPT Web | `.chatgpt/visual-review.md` or an explicit `NOT_APPLICABLE` record |
@@ -93,6 +93,14 @@ mechanism for bypassing comprehensive stages.
    upstream stages to be approved.
 10. Only an approved `FINAL_REVIEW` may move `DONE` to `IN_PROGRESS`, after
    which the current client marks `DONE` as `COMPLETED`.
+11. A malformed Task Contract response uses the bounded recovery process in
+   `failure-handling.md`. After lossless normalization and two failed total
+   Planner attempts (the original response and one repair), Codex may approve
+   a schema-valid recovered contract only when all of its content is traceable
+   to approved upstream artifacts and verified repository facts. Record the
+   provenance, source artifacts, failed attempts, and validation result in
+   stage notes and history. Formatting failure alone must not set
+   `TASK_PLANNING` to `BLOCKED`.
 
 ## Update protocol
 

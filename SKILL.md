@@ -7,7 +7,7 @@ description: >-
   comprehensive planner/reviewer workflow. Codex inspects and implements the
   repository while ChatGPT Web owns product intent and bounded planning.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # ChatGPT Planner
@@ -121,7 +121,7 @@ Stage contract:
 | Design | Product decisions, UI sources, existing patterns | UX/UI decisions and required states | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
 | Design Handoff | Approved product/design decisions | `.chatgpt/design-handoff.md` or `NOT_APPLICABLE` record | ChatGPT Web, persisted by Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
 | Engineering Analysis | Approved handoff, repository context | `.chatgpt/engineering-analysis.md` | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
-| Task Planning | All approved preceding artifacts | Task Contract JSON | ChatGPT Web | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
+| Task Planning | All approved preceding artifacts | Task Contract JSON | ChatGPT Web; Codex recovery only after bounded malformed-response recovery | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
 | Implementation | Approved Task Contract and current state | Code and implementation result | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
 | Verification | Approved implementation | Test, build, and manual verification results | Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
 | Visual QA | Verification evidence and design handoff | `.chatgpt/visual-review.md` or `NOT_APPLICABLE` record | ChatGPT Web, evidence by Codex | `IN_PROGRESS` → `WAITING_REVIEW` → `APPROVED` |
@@ -217,9 +217,12 @@ Before editing production code, read `.chatgpt/workflow-state.json` and verify
 the selected profile, confirm `IMPLEMENTATION` is `IN_PROGRESS`, and confirm
 every dependency is `APPROVED`. For Lite, also confirm
 `.chatgpt/change-contract.json` is usable. For comprehensive work, confirm the
-Task Contract and required preceding artifacts are approved. If the state is
-missing, stale, blocked, or inconsistent with the artifacts, stop and repair
-the state through the responsible stage before coding.
+Task Contract and required preceding artifacts are approved. A usable Task
+Contract may be a schema-valid ChatGPT Web response or the narrowly bounded
+recovered contract allowed by `references/failure-handling.md`; record its
+provenance in workflow state. If the state is missing, stale, blocked, or
+inconsistent with the artifacts, stop and repair the state through the
+responsible stage before coding.
 
 Implement only tasks from the accepted plan.
 

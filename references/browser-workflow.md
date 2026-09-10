@@ -152,6 +152,18 @@ Treat the repository facts below as authoritative and revise the complete plan.
 
 Return the full updated Task Contract JSON only.
 
+## Malformed contract recovery
+
+When a Planner response is not valid JSON, first attempt the lossless
+normalization described in `failure-handling.md`. If needed, send one bounded
+repair request, giving two total Planner attempts. The repair request must be
+self-contained when sent in a replacement normal Chat conversation: include
+the original request, approved artifacts, verified repository facts, and
+complete schema. Ask for a full replacement contract, never a JSON patch.
+After those attempts, use the deterministic recovery rules in
+`failure-handling.md`; do not leave a well-specified implementation blocked
+solely by serialization errors.
+
 ## Same conversation
 
 Planning and final review should normally happen in the same ChatGPT Web

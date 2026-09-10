@@ -31,24 +31,83 @@ Never ask for authentication secrets.
 
 ## Malformed Planner response
 
-If ChatGPT Web does not return the Task Contract:
+Treat a response-format failure separately from a missing plan. Do not block
+implementation solely because an otherwise available plan was not serialized
+as valid JSON.
 
-1. ask once for reformatting
-2. resend the expected schema
-3. request JSON only
+First retain the raw response in the Planner conversation and attempt
+lossless normalization: remove a surrounding Markdown code fence or isolate
+the one complete JSON object when surrounding prose is present. Accept it only
+if the resulting object parses without repair and validates against the
+applicable contract schema. Never add quotes, commas, fields, requirements, or
+acceptance criteria while normalizing.
+
+If normalization does not yield a usable contract, make one bounded recovery
+request. Together with the malformed original response, this is the maximum of
+two automatic Planner attempts for the same contract:
+
+1. In the same Planner conversation, state the exact parse or schema failure,
+   resend the expected schema, and request the complete contract as JSON only.
+
+If the original conversation is unavailable, send that one repair request in a
+fresh normal Chat conversation. It must be self-contained: include the
+approved upstream artifacts, verified repository facts, the schema, and the
+original request; do not rely on chat history.
 
 Do not immediately regenerate the plan yourself.
 
-If it remains malformed:
+If the repair response remains malformed, record the two raw-response
+summaries, parse/validation failures, and recovery attempt in
+`workflow-state.json` history. Then apply the appropriate deterministic
+contract recovery below.
 
-- preserve only unambiguous information
-- mark missing fields
+### Comprehensive deterministic Task Contract recovery
+
+When Requirement Review, applicable Design and Design Handoff, and Engineering
+Analysis are all approved and together contain enough unambiguous information,
+Codex may write `.chatgpt/task-contract.json` itself and approve
+`TASK_PLANNING`. This exception repairs a transport failure; it does not give
+Codex product-design authority.
+
+The recovered contract must:
+
+- validate against `task-contract.md`;
+- use only the approved user scope, requirement/design artifacts, verified
+  repository facts, and available verification commands;
+- preserve explicit non-goals and unresolved decisions;
+- make each requirement, task, acceptance criterion, and risk traceable to an
+  approved artifact or repository fact;
+- omit ambiguous optional work rather than choosing it; and
+- be identified in the state notes and history as
+  `CODEX_RECOVERY_FROM_APPROVED_ARTIFACTS`, including the source artifacts and
+  the two failed attempts.
+
+If those artifacts do not establish observable requirements, a safe behavior,
+or a bounded implementation shape, do not synthesize a contract. Re-enter or
+block the earliest responsible upstream stage for the missing substantive
+decision. JSON formatting alone is never that substantive decision.
+
+### Lite deterministic Change Contract recovery
+
+After the same normalization and two failed total Planner attempts, Codex may
+write a Change Contract when the approved `TRIAGE`, explicit user request, and
+verified repository facts fully establish a localized, reversible change with
+objective verification. Record `CODEX_RECOVERY_FROM_APPROVED_ARTIFACTS` and
+the failed attempts in the Lite state. Do not escalate to the comprehensive
+workflow solely because JSON serialization failed.
+
+If the Lite inputs are not sufficient for a bounded contract, escalate because
+of the substantive scope or decision gap, not because the Planner emitted
+malformed JSON.
+
+For any recovery path:
+
+- preserve only unambiguous source information
+- record missing or ambiguous required input in state and return to the
+  responsible upstream stage when it prevents a complete contract
 - do not fabricate requirements or acceptance criteria
-
-For Lite work, apply the same retry rule to the Change Contract. If a valid,
-bounded contract still cannot be obtained, escalate to the comprehensive
-workflow or mark `COMPACT_PLAN` as `BLOCKED`; do not implement from malformed
-fragments.
+- do not implement from malformed fragments; implement only after a complete,
+  schema-valid Planner or recovered contract is persisted and approved
 
 ## Lite scope expansion
 

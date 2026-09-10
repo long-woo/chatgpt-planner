@@ -98,6 +98,12 @@ Return exactly one JSON object following the provided Task Contract.
 
 Do not include prose before or after the JSON.
 
+This is a transport requirement, not a reason to lose an otherwise settled
+plan. If the response cannot be parsed, Codex follows the bounded normalization
+and recovery process in `failure-handling.md`. The Planner must return the
+complete contract on every repair request; it must not return a patch, prose
+summary, or only the corrected fields.
+
 ## Planner behavior
 
 Prefer:
