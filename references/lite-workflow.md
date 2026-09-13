@@ -1,172 +1,50 @@
 # Lite Workflow
 
-Use the `LITE` profile for small, low-risk, well-bounded changes. Its purpose is
-to preserve scope control and independent planning without forcing every change
-through the comprehensive eleven-stage workflow.
+Use `LITE` for a clear, localized, reversible, objectively verifiable change.
+Its purpose is to preserve product scope without forcing a planning document
+or review loop.
 
 ## Eligibility
 
-Use `LITE` only when all of the following are true:
+All of these should be true:
 
-- the requested behavior is clear and does not require a material product
-  decision;
-- the change is localized to one module and is expected to touch no more than
-  roughly three production files; this is a heuristic, not a hard limit;
-- no persistence schema, public API contract, authentication, authorization,
-  privacy, billing, payment, destructive operation, or irreversible migration
+- behavior is clear and requires no material product decision;
+- impact is localized, normally one module and roughly three production files
+  or fewer;
+- no public API, persistence schema, migration, authentication,
+  authorization, privacy, security, billing, payment, or destructive behavior
   is involved;
-- the change does not introduce a new visual direction, page flow, information
-  architecture, or interaction model;
-- an objective targeted test or deterministic manual check can establish the
-  requested behavior;
-- the change is straightforward to revert.
+- no new visual direction, page flow, information architecture, or
+  interaction model is introduced;
+- targeted verification is available.
 
-A UI defect may use `LITE` only when the expected appearance or interaction is
-already established by an inspected design source or existing repository
-pattern and focused visual evidence can verify the correction.
-
-If any criterion is false or uncertain, use the comprehensive workflow. Do not
-choose `LITE` merely because the expected diff is short.
+If any criterion is false or uncertain, use `STANDARD` or `COMPREHENSIVE`.
 
 ## Flow
 
 ```text
-TRIAGE
-  -> COMPACT_PLAN
-  -> IMPLEMENTATION
-  -> VERIFICATION
-  -> FINAL_REVIEW (conditional)
-  -> DONE
+TRIAGE → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
 ```
 
-Initialize `.chatgpt/workflow-state.json` from
-`templates/lite-workflow-state.json`. The Lite artifacts are:
+Triage and stage status are held in the current task memory. Do not initialize
+`.chatgpt/workflow-state.json` or write a Change Contract/Change Result.
 
-- `.chatgpt/change-contract.json`
-- `.chatgpt/change-result.json`
+## Context
 
-The state file is the source of truth for the current Lite stage. The Change
-Contract is the scope boundary; the Change Result is the implementation and
-verification record.
+Use one ChatGPT Web turn. Send the user request, concise verified repository
+facts, Lite constraints, and the execution-context schema from
+`references/execution-context.md`. ChatGPT Web returns exactly one context.
 
-## Triage
+The context must contain a bounded goal, included scope, non-goals,
+implementation constraints, observable acceptance criteria, and practical
+verification. Codex validates it in memory and does not persist it.
 
-Codex inspects only enough repository context to validate the eligibility
-criteria and identify a targeted verification method. Record the decision and
-evidence in the `TRIAGE` state notes. Triage is not implementation.
+## Implementation and verification
 
-If `.chatgpt/decision-records.md` exists, read relevant `ACTIVE` records during
-triage. A conflict with an active record is not Lite-eligible unless the user
-has already resolved it and no downstream product, design, or technical
-decision remains.
+Codex may edit only the bounded scope. Run the listed targeted checks and any
+proportionate local check needed to protect the change. Report acceptance
+results and command evidence in the active task response.
 
-When eligible, move `COMPACT_PLAN` to `IN_PROGRESS`. When ineligible, initialize
-the comprehensive workflow instead. If a Lite workflow already exists, follow
-the escalation procedure below.
-
-## Compact Plan
-
-Use one ChatGPT Web Planner interaction. Send:
-
-- `USER_REQUEST`
-- concise verified `REPO_CONTEXT`
-- the Lite eligibility constraints
-- the Change Contract schema from `templates/change-contract.json`
-
-Ask ChatGPT Web to return exactly one JSON object. Codex persists it as
-`.chatgpt/change-contract.json` and validates that it:
-
-- preserves the explicit user request;
-- has at least one observable requirement and acceptance criterion;
-- has a bounded scope and explicit non-goals;
-- uses only verified repository facts;
-- defines practical verification;
-- contains escalation conditions appropriate to the change.
-
-If repository facts contradict the response, use the existing
-`PLAN_CORRECTION` procedure. Do not split the compact plan into separate
-Requirement Review, Product Design, Design Handoff, Engineering Analysis, and
-Task Planning artifacts.
-
-## Implementation
-
-Before editing production code, verify that:
-
-- `workflow_profile` is `LITE`;
-- `COMPACT_PLAN` is `APPROVED`;
-- `IMPLEMENTATION` is `IN_PROGRESS`;
-- `.chatgpt/change-contract.json` is present and usable.
-
-Implement only the contract scope. Do not perform adjacent cleanup. If the
-work crosses an escalation condition, stop the Lite implementation and
-escalate before continuing.
-
-## Verification and result
-
-Write `.chatgpt/change-result.json` from `templates/change-result.json`.
-Record:
-
-- changed files;
-- one result for every acceptance criterion;
-- commands with status and exit code;
-- deterministic manual or visual checks when applicable;
-- plan deviations;
-- discovered issues;
-- whether ChatGPT Web final review is required and why.
-
-Use `passed`, `failed`, or `not_run` for individual checks. The overall result
-may be `passed` only when every required acceptance criterion is established,
-required checks did not fail or remain `not_run`, and there is no unresolved
-plan deviation.
-
-## Conditional final review
-
-Skip the second ChatGPT Web interaction only when all of the following are
-true:
-
-- every acceptance criterion passed;
-- the implementation stayed within the Change Contract;
-- no required verification is missing;
-- no user-visible product or unresolved visual decision was introduced;
-- Codex has no material uncertainty about correctness.
-
-When skipped, set `FINAL_REVIEW` to `SKIPPED` and record the reason. Require
-ChatGPT Web final review when any condition is not met, when the user requests
-it, or when the change needs subjective visual judgment. A review `PASS` maps
-to `APPROVED`; `NEEDS_FIX` or `BLOCKED` follows the bounded review rules from
-`failure-handling.md`.
-
-For a required review, send the original user request, Change Contract, Change
-Result, and only the diff excerpts or visual evidence needed to judge the
-acceptance criteria. Ask ChatGPT Web to return `PASS`, `NEEDS_FIX`, or
-`BLOCKED` with bounded required fixes. Persist the status, summary, and fixes
-in the review fields of `.chatgpt/change-result.json`.
-
-`DONE` may be `COMPLETED` only when Verification is `APPROVED` and Final Review
-is either `APPROVED` or validly `SKIPPED`. Set `workflow_status` to
-`COMPLETED` at the same transition.
-
-## Escalation
-
-Escalate from `LITE` to the comprehensive workflow when implementation or
-verification discovers any of the following:
-
-- material product ambiguity;
-- a new UI direction or flow decision;
-- public API, persistence, migration, compatibility, authentication,
-  authorization, privacy, security, billing, payment, or destructive impact;
-- impact outside the approved Change Contract;
-- verification that cannot establish correctness locally;
-- a broader architectural decision.
-
-Do not continue editing while the profile is being escalated. Copy the current
-Lite state to `.chatgpt/lite-workflow-state.json`, preserve the Change Contract,
-Change Result, and existing code changes, then initialize the comprehensive
-state at `.chatgpt/workflow-state.json`. Its first history entry must reference
-the Lite state and artifacts and explain the escalation. Start at the earliest
-responsible stage. Normally this is Requirement Review; use Engineering
-Analysis only when product and design intent remain fully settled and the
-newly discovered issue is exclusively technical.
-
-Never downgrade an active comprehensive workflow to `LITE` merely to bypass a
-gate.
+If the change crosses an escalation boundary, stop, select a safer mode, and
+request a replacement context before continuing. Do not add an ad-hoc review
+stage or artifact to Lite.

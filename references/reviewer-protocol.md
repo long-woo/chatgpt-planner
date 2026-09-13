@@ -1,159 +1,37 @@
-# Reviewer Protocol
+# Optional Reviewer Protocol
 
-This protocol applies to comprehensive Final Review. Lite work uses the
-conditional review rules and compact inputs in `lite-workflow.md`.
-
-After Codex finishes implementation and local verification, ChatGPT Web becomes
-the Requirement Reviewer.
-
-Its purpose is to determine whether the implementation satisfies the accepted
-requirement.
-
-It is not a generic style reviewer.
-
-For UI-changing work, Visual QA is a preceding, focused sub-review. ChatGPT Web
-judges the screenshots or simulator/browser evidence against `.chatgpt/design-handoff.md`
-and records `.chatgpt/visual-review.md`; the final Requirement Review then checks that
-required visual fixes were addressed. Codex is responsible for collecting the
-evidence and implementing bounded fixes, not for deciding that a design
-constraint can be ignored.
+ChatGPT Web review is not a default stage in the new workflow. Use this
+protocol only when the user explicitly requests a product/design review or
+when the current task is separately authorized to require one.
 
 ## Input
 
-Provide:
+Send the original user request, the accepted six-field execution context,
+changed-file summary, verification results, and only the focused diff or UI
+evidence needed for judgment. Do not send a duplicate collection of stage
+artifacts.
 
-ORIGINAL_USER_REQUEST
+## Review criteria
 
-REQUIREMENT_REVIEW
+Check:
 
-DESIGN_HANDOFF (or `NOT_APPLICABLE`)
+- every acceptance criterion;
+- scope and non-goals;
+- implementation constraints and required UI states;
+- regressions indicated by verification evidence;
+- concrete visual deviations when UI evidence is supplied.
 
-ENGINEERING_ANALYSIS
+Return one of:
 
-ACCEPTED_PLAN
+- `PASS` — acceptance criteria are established;
+- `NEEDS_FIX` — a concrete bounded requirement failure exists;
+- `BLOCKED` — evidence is insufficient for a decision.
 
-IMPLEMENTATION_RESULT
+Return the result in chat. Do not write `final-review.md`, `visual-review.md`,
+or another review artifact unless the user explicitly asks to save it.
 
-VISUAL_REVIEW (or `NOT_APPLICABLE`)
+## Fix loop
 
-RELEVANT_DIFF_OR_EXCERPTS
-
-## Reviewer prompt
-
-You are now the Requirement Reviewer.
-
-Review the completed Codex implementation against the previously accepted plan.
-
-Review only:
-
-- requirement coverage
-- acceptance criteria
-- incorrect user-visible behavior
-- whether the Requirement Review's MVP boundary and non-goals were preserved
-- whether Design Handoff constraints were respected for UI work
-- whether Visual QA required fixes were addressed
-- meaningful edge cases
-- regressions implied by the requirement
-- missing required verification
-
-Do NOT fail implementation for:
-
-- personal code-style preferences
-- optional refactors
-- speculative abstractions
-- unrelated cleanup
-- improvements outside the accepted scope
-
-Repository and verification facts from IMPLEMENTATION_RESULT are authoritative.
-
-Return exactly one JSON object.
-
-Do not include prose before or after it.
-
-## Output
-
-{
-  "status": "PASS",
-
-  "summary": "Requirement-focused judgment.",
-
-  "requirement_results": [
-    {
-      "requirement_id": "REQ-1",
-      "status": "met",
-      "evidence": "Evidence supporting the judgment"
-    }
-  ],
-
-  "required_fixes": [],
-
-  "verification_gaps": []
-}
-
-## Status
-
-Allowed overall statuses:
-
-PASS
-
-NEEDS_FIX
-
-BLOCKED
-
-Allowed requirement statuses:
-
-met
-
-not_met
-
-uncertain
-
-## PASS
-
-Use `PASS` when:
-
-- all required behavior is implemented
-- acceptance criteria are satisfied
-- required verification is sufficient
-- for UI work, `.chatgpt/visual-review.md` is `PASS` and its required evidence exists
-- for non-UI work, the visual review is explicitly `NOT_APPLICABLE`
-
-## NEEDS_FIX
-
-Use only when:
-
-- a requirement is missing
-- behavior is incorrect
-- acceptance criteria are not satisfied
-- a meaningful regression exists
-- required verification is missing
-
-Each fix should be bounded:
-
-{
-  "id": "FIX-1",
-  "problem": "Concrete issue",
-  "expected_outcome": "Required result",
-  "acceptance_criteria": [
-    "Concrete check"
-  ]
-}
-
-## BLOCKED
-
-Use when available evidence cannot establish correctness and Codex cannot
-reasonably obtain the missing evidence locally.
-
-## Review loop
-
-When `NEEDS_FIX`:
-
-ChatGPT Web
-→ required_fixes
-→ Codex
-→ verification
-→ IMPLEMENTATION_RESULT update
-→ ChatGPT Web review
-
-Normally stop after two fix/review rounds if the remaining requests are merely
-optional preferences rather than requirement failures.
+For `NEEDS_FIX`, Codex fixes only the identified bounded issue, reruns the
+affected verification, and sends the updated evidence. A review must not
+authorize unrelated redesign, refactoring, or scope expansion.

@@ -1,3 +1,5 @@
+<!-- Optional durable template. Not created or copied by the default workflow. -->
+
 # Decision Records
 
 

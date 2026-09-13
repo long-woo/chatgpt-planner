@@ -1,117 +1,47 @@
 # UI Design Context
 
-Apply this guidance whenever a request changes a user-visible surface in a
-mobile App, Web app, responsive site, dashboard, or other frontend product.
-It does not apply to backend-only work with no user-visible UI impact.
+Apply this guidance whenever a request changes a user-visible mobile, Web,
+responsive, dashboard, or other frontend surface.
 
-For UI-changing work, apply this context after `.chatgpt/requirement-review.md` has
-bounded the request and before creating `.chatgpt/design-handoff.md`. The handoff is
-the durable design contract used by Engineering Analysis and implementation;
-the Visual QA record later checks the rendered result against that contract.
-See `references/design-handoff.md` and `references/visual-qa.md`.
-
-The Planner is responsible for clarifying UI behavior and design inputs, not
-for inventing a visual direction that the user did not provide.
+UI reasoning happens inside ChatGPT Web's single analysis turn. The resulting
+constraints belong in the temporary execution context's
+`implementation_constraints` field; do not create a separate design handoff
+or visual-review file by default.
 
 ## Source of truth
 
-Use UI information in this order of authority:
+Use UI information in this order:
 
-1. Explicit user requirements and supplied UI references: Figma files or
-   links, screenshots, recordings, annotated mockups, brand guidelines,
-   design tokens, component specifications, or concrete visual constraints.
-2. Verified project context: the repository's design system, component
-   library, theme/tokens, existing screens, and established patterns on the
-   same product surface.
-3. Existing adjacent UI patterns that are demonstrably part of the same
-   product and platform.
-4. Platform conventions, but only as a fallback for interaction behavior,
-   accessibility, and basic layout expectations—not as permission to create a
-   new visual style.
+1. explicit user requirements and supplied references such as Figma,
+   screenshots, recordings, mockups, brand guidance, or design tokens;
+2. verified repository design system, theme, components, and nearby screens;
+3. established adjacent patterns in the same product and platform;
+4. platform conventions as a fallback for behavior and accessibility only.
 
-Treat a source as available only when its contents are actually provided or
-can be inspected. Do not assume that a Figma link, screenshot, design system,
-or external page is accessible merely because it is mentioned.
+Label information as confirmed, inferred, or missing. Do not assume a named
+Figma link or external page was inspected unless it was actually available.
 
-For each relevant source, distinguish:
+## Planning rules
 
-- **Confirmed**: directly supplied, inspected, or established in the
-  repository.
-- **Inferred**: a conclusion from existing product patterns; label it as an
-  inference.
-- **Missing**: needed UI information that is not available; keep the decision
-  unresolved rather than filling it with taste or guesswork.
+- With a supplied design, follow it and identify repository conflicts.
+- With existing patterns only, reuse them and label inferred choices.
+- With no design source, define behavior, content hierarchy, states,
+  responsiveness, and accessibility, but do not invent a new visual system.
+- Do not invent colors, typography, spacing, radii, shadows, iconography,
+  imagery, motion, or a new component style without a source.
+- Keep missing visual decisions unresolved unless they materially affect
+  behavior, information architecture, compatibility, or implementation scope;
+  in that case ask the user before returning the context.
 
-## Planning rules for UI work
+## Context placement
 
-Before creating tasks, determine which of these situations applies:
+Put concise UI information into `implementation_constraints`, for example:
 
-- **Provided design**: follow the supplied design reference and identify any
-  conflicts with the repository or platform constraints.
-- **Existing patterns only**: reuse the existing design system and nearby
-  screens; call out any inferred choices that are not explicitly specified.
-- **No design source**: define the user-visible behavior, content hierarchy,
-  states, responsive or platform constraints, and accessibility expectations,
-  but leave the visual direction explicitly unresolved.
+- `Confirmed screenshot establishes the mobile card hierarchy and primary action.`
+- `Reuse the existing theme and adjacent detail-page components.`
+- `Required states: loading, empty, error, disabled, and success.`
+- `No design source establishes motion; do not introduce custom animation.`
 
-When no Figma or UI design is available, do not invent or silently decide:
-
-- color palettes, typography, brand treatment, spacing scales, corner radii,
-  shadows, iconography, illustrations, imagery, or motion language;
-- a new component style or visual hierarchy that is not supported by existing
-  product patterns;
-- polished mockups, visual variants, or aesthetic recommendations presented
-  as requirements.
-
-Instead, the plan should:
-
-- reuse existing components, tokens, and patterns when they exist;
-- specify behavior and structure in observable terms, including loading,
-  empty, error, disabled, responsive, and accessibility states when relevant;
-- record the missing visual decisions as an assumption, non-goal, or
-  unresolved design input;
-- add a blocking question only when the missing design decision materially
-  changes user-visible behavior, information architecture, compatibility, or
-  implementation scope. Otherwise, proceed with existing patterns and keep
-  the visual decision open for design review.
-
-Do not convert “make it look good,” “follow best practices,” or a similar
-high-level request into an invented visual system. Interpret it as a request
-to preserve or reuse the project's established UI language unless the user
-provides a design source or explicitly asks for visual exploration.
-
-## Required plan traceability
-
-For a UI-changing request, include a `ui_context` object in the Planner JSON:
-
-```json
-{
-  "ui_context": {
-    "surface": "mobile_app | web | both | unknown",
-    "source_status": "provided_design | existing_patterns_only | no_design_source",
-    "sources": [
-      {
-        "type": "figma | screenshot | existing_ui | design_system | user_requirement | platform_convention",
-        "status": "confirmed | inferred | missing",
-        "description": "What this source establishes or fails to establish"
-      }
-    ],
-    "unresolved_visual_decisions": [
-      "Visual decisions that must not be invented by the implementation"
-    ]
-  }
-}
-```
-
-Keep this object concise. If the request has no UI impact, omit it. The
-`ui_context` object does not replace requirements, tasks, acceptance criteria,
-or blocking questions; it records the evidence and boundary behind them.
-
-## Design and visual handoff
-
-Do not treat the `ui_context` object as a substitute for the Design Handoff.
-After design decisions are made, record the design goal, key experiences,
-surface priority, immutable constraints, required states, and unresolved
-decisions in `.chatgpt/design-handoff.md`. During implementation verification, compare
-screenshots, simulator captures, or browser evidence against that file and
-record concrete deviations in `.chatgpt/visual-review.md`.
+For verification, capture only the focused route/screen and states needed to
+establish the acceptance criteria. Keep visual evidence in the active task
+response unless a saved review is explicitly requested.

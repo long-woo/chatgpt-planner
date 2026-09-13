@@ -1,52 +1,58 @@
 # Collaboration Workflow
 
-This is the high-level operating guide for comprehensive work. First read
-`lite-workflow.md` to determine whether the request qualifies for the compact
-path. Read `workflow-state.md` for the comprehensive machine-readable gate
-rules and `index.md` to route detailed stage protocols.
+This is the high-level workflow for all three risk-adaptive modes. Read
+`workflow-selection.md` first, then load only the references needed for the
+selected mode.
 
-## Profile routing
+## Flow
 
-Use the Lite flow for small, clear, low-risk, localized, objectively verifiable
-changes. It combines requirement review, repository analysis, and task
-planning into one Change Contract and combines implementation reporting and
-verification into one Change Result.
+```text
+User Request → ChatGPT Web analysis → temporary execution context
+→ Codex implementation → verification
+```
 
-Use this comprehensive flow whenever Lite eligibility is false or uncertain.
-If a Lite implementation discovers broader impact, preserve its artifacts and
-escalate according to `lite-workflow.md` before continuing.
+The context is the single planning handoff. It is carried in the active
+conversation and current task memory. It is not written to the repository.
 
 ## Responsibilities
 
-ChatGPT Web owns requirement understanding, product design, UX/UI design,
-engineering planning, Visual QA judgment, and final acceptance. Codex owns
-repository facts, engineering analysis, code implementation, tests, technical
-verification, and collection of visual evidence. The current client carries
-artifacts between them.
+ChatGPT Web owns requirement interpretation, product/UI intent, bounded
+planning, acceptance criteria, and design judgment when needed. It must not
+write production code.
 
-ChatGPT Web must not write production code. Codex must not silently redefine
-product requirements or design constraints.
+Codex owns repository reconnaissance, implementation choices that fit verified
+repository facts, code changes, tests, and verification. It must not silently
+change product behavior.
 
-## Execution sequence
+The current client selects `workflow_mode` and transfers the one context. It
+does not initialize a `.chatgpt/` directory or copy planning output into
+`.md`/`.json` files for a new task.
 
-1. Initialize `.chatgpt/workflow-state.json` and collect a concise `REPO_CONTEXT`.
-2. ChatGPT Web completes Requirement Review and product design, then UX/UI
-   design when the request has a visual surface.
-3. Persist the Design Handoff. For non-UI work, persist an explicit
-   `NOT_APPLICABLE` record so the gate remains traceable.
-4. Codex performs Engineering Analysis before Task Planning. It must not
-   implement during analysis.
-5. ChatGPT Web creates the Task Contract from all approved inputs. Codex
-   validates it against repository facts and requests a bounded correction when
-   facts conflict.
-6. Codex reads the current state again, implements only accepted tasks, and
-   runs the planned verification.
-7. Codex supplies screenshots or simulator evidence for UI work. ChatGPT Web
-   performs Visual QA; Codex addresses only bounded required fixes.
-8. ChatGPT Web performs Final Review. `PASS` unlocks `DONE`; `NEEDS_FIX`
-   returns to the responsible implementation/verification loop; `BLOCKED`
-   remains stopped until the missing evidence or decision is resolved.
+## Mode depth
 
-The shared project/work directory is the handoff boundary. ChatGPT Web may
-receive exact artifact contents or faithful extracts in the browser conversation
-when it cannot access the filesystem directly. Do not require Git metadata.
+| Mode | ChatGPT Web analysis | Default handoff |
+|---|---|---|
+| `LITE` | Compact scope and verification analysis | One six-field context |
+| `STANDARD` | Complete requirement, product/UI, and boundary analysis | One six-field context |
+| `COMPREHENSIVE` | Full product, UI, engineering-risk, and rollout analysis | One six-field context |
+
+The mode changes the amount of reasoning, not the number of handoffs.
+
+## Common gates
+
+1. Select the mode from risk and decision complexity.
+2. Codex gathers only repository facts relevant to the request.
+3. ChatGPT Web returns one validated execution context.
+4. Codex checks repository fit before editing.
+5. Codex implements the bounded scope.
+6. Codex runs the required verification and reports evidence.
+
+If a material ambiguity or repository conflict appears, pause implementation
+and obtain a replacement context. Do not preserve the intermediate analysis in
+a process artifact.
+
+## Compatibility
+
+Existing planning files may be read when resuming a legacy workflow. They are
+not required for new work and must not be generated automatically. Use
+`references/optional-artifacts.md` for explicit document requests.
