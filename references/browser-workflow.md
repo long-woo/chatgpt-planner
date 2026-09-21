@@ -19,6 +19,13 @@ turn standalone. Send only:
 - relevant `CONSTRAINTS`;
 - the selected mode as routing metadata.
 
+For a UI request, also derive `ui_design_mode` from
+`references/auto-ui-design.md`. Keep it as routing metadata and instruct
+ChatGPT Web to place the generated design constraints in the existing
+`implementation_constraints` field. ChatGPT Web must perform the UI design in
+the planning turn; do not ask Codex or the current client to invent the visual
+direction.
+
 Ask ChatGPT Web to analyze internally and return exactly one six-field
 execution context from `references/execution-context.md`. The current client
 transfers that response to Codex in memory. Do not write it to `.md` or `.json`
@@ -52,12 +59,13 @@ Ask for a complete replacement execution context with exactly the six allowed
 fields. Never ask for a JSON patch and never silently reinterpret product
 intent.
 
-## Optional review
+## ChatGPT Web verification
 
-Do not return to ChatGPT Web for a default review. If the user explicitly asks
-for a product/design review, use `references/reviewer-protocol.md` and send
-focused implementation evidence. Keep the review in chat unless the user
-also explicitly asks to save it.
+After Codex implementation, return to the same ChatGPT Web conversation and
+send the raw implementation evidence required by
+`references/reviewer-protocol.md`. ChatGPT Web must judge the evidence against
+the execution context and return `PASS`, `NEEDS_FIX`, or `BLOCKED`. Keep the
+verification in chat unless the user explicitly asks to save it.
 
 ## Verification evidence
 

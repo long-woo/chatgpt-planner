@@ -7,7 +7,8 @@ Comprehensive risk boundary.
 ## Flow
 
 ```text
-ANALYSIS → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
+ANALYSIS → CONTEXT → IMPLEMENTATION → EVIDENCE
+→ CHATGPT_WEB_VERIFICATION → DONE
 ```
 
 ChatGPT Web performs the requirement, product/UI, edge-case, and scope
@@ -22,13 +23,15 @@ behavior, required UI states, design evidence, repository-independent
 constraints, and explicit exclusions into the six allowed fields. Keep
 implementation suggestions bounded and non-speculative.
 
-Codex validates repository fit, implements the scope, and verifies acceptance
-criteria. For UI work, focused screenshots or rendered evidence remain
-temporary evidence in the active task response.
+Codex validates repository fit, implements the scope, and collects raw command
+results and focused UI evidence. ChatGPT Web verifies the acceptance criteria
+against that evidence in the active task conversation. For UI work, screenshots
+or rendered evidence remain temporary evidence in the active task response.
 
-## Escalation and optional review
+## Escalation and verification
 
 If the decision cannot be safely bounded in one context, escalate to
-`COMPREHENSIVE` before implementation. A user may separately request a
-ChatGPT Web review after implementation; use `references/reviewer-protocol.md`.
-That review is not a default Standard stage and is not saved unless requested.
+`COMPREHENSIVE` before implementation. After implementation, use
+`references/reviewer-protocol.md` for the required ChatGPT Web verification.
+It remains in chat and is not saved unless the user explicitly requests a
+durable review.

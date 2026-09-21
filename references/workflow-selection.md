@@ -26,11 +26,30 @@ not make risky work Lite-eligible.
 | `COMPREHENSIVE` | Core flow, architecture, security, irreversible data, major release | Full |
 
 All modes return the same six-field execution context and create no planning
-artifact by default.
+artifact by default. UI requests additionally receive in-memory
+`ui_design_mode` routing metadata; it is never added as a seventh context
+field.
+
+## UI design routing
+
+When the request changes a user-visible surface, classify the UI design need
+before the ChatGPT Web turn:
+
+- `REUSE_PATTERN` for local copy/style/interaction corrections that already
+  have a verified nearby pattern;
+- `REFERENCE_ADAPTATION` when the user supplies a visual reference or design
+  system;
+- `AUTO_DESIGN` for a new page, flow, redesign, or feature without a complete
+  visual reference.
+
+Read `references/auto-ui-design.md` for the generated design constraints and
+implementation boundary. A Lite request may not silently enter `AUTO_DESIGN`;
+it must escalate first.
 
 ## Escalation
 
-Escalate before continuing if implementation or verification discovers:
+Escalate before continuing if implementation or ChatGPT Web verification
+discovers:
 
 - a new product or design decision;
 - public API, persistence, migration, compatibility, authentication,

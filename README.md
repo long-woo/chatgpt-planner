@@ -13,12 +13,17 @@ User Request
   → ChatGPT Web analysis
   → one temporary execution context
   → Codex implementation
-  → verification
+  → Codex evidence collection
+  → ChatGPT Web verification
+  → Done or bounded fix loop
 ```
 
 ChatGPT Web performs the requirement, product/UI, and planning analysis in one
-turn. It returns exactly one structured context. The current client transfers
-that context to Codex in memory; it does not save it to the project.
+turn. For new UI surfaces, that turn includes Automatic UI Design and returns
+the design direction inside `implementation_constraints`. The current client
+transfers one structured context to Codex in memory; it does not save it to the
+project. ChatGPT Web owns the UI design; the current client only routes the
+design mode, and Codex implements the returned direction.
 
 The context contains only:
 
@@ -48,7 +53,8 @@ product/UI, public API, persistence, migration, authentication, security,
 privacy, billing, payment, or destructive decision.
 
 ```text
-Compact analysis → context → implementation → verification
+Compact analysis → context → implementation → evidence
+→ ChatGPT Web verification
 ```
 
 ### STANDARD
@@ -57,7 +63,8 @@ For bounded pages, endpoints, medium features, data-model adjustments, or
 user-visible flows that need more complete requirement/design reasoning.
 
 ```text
-Complete analysis → context → implementation → verification
+Complete analysis → context → implementation → evidence
+→ ChatGPT Web verification
 ```
 
 ### COMPREHENSIVE
@@ -66,12 +73,13 @@ For architecture, core journeys, security/privacy/authorization, irreversible
 data behavior, or major release capabilities.
 
 ```text
-Full analysis → context → implementation → verification
+Full analysis → context → implementation → evidence
+→ ChatGPT Web verification
 ```
 
-Comprehensive may internally cover product design, UI states, engineering
-impact, risks, and rollout considerations, but still returns one context and
-does not create intermediate documents by default.
+Comprehensive may internally cover product design, automatic UI design, UI
+states, engineering impact, risks, and rollout considerations, but still
+returns one context and does not create intermediate documents by default.
 
 See `references/workflow-selection.md` for routing and escalation rules.
 
@@ -81,14 +89,15 @@ ChatGPT Web owns:
 
 - requirement interpretation and product intent;
 - UI/design decisions when the request needs them;
-- scope, non-goals, acceptance criteria, and verification expectations.
+- scope, non-goals, acceptance criteria, and verification expectations;
+- final verification judgment and PASS/NEEDS_FIX/BLOCKED decision.
 
 Codex owns:
 
 - repository reconnaissance and verified repository facts;
 - implementation choices that fit the repository;
-- code changes, tests, and local verification;
-- focused UI evidence when required by acceptance criteria.
+- code changes;
+- raw test/build output and focused UI evidence for ChatGPT Web to evaluate.
 
 The central rule is:
 
@@ -117,7 +126,7 @@ some time automatically fetches another recommendation.
 
 Codex inspects only the relevant repository context, sends a concise standalone
 planning request to ChatGPT Web, validates the returned context, then
-implements and verifies it.
+implements and collects evidence. ChatGPT Web performs the final verification.
 
 ## Planner response contract
 
@@ -154,7 +163,8 @@ For the lowest-token path:
 3. Ask for the six-field JSON context only, with no explanation or preamble.
 4. Do not paste the full repository or repeat the same requirement in multiple
    messages.
-5. Let Codex verify locally and report only relevant evidence.
+5. Let Codex collect only relevant raw evidence; let ChatGPT Web make the
+   verification judgment.
 
 `STANDARD` and `COMPREHENSIVE` still use one ChatGPT Web response; they spend
 more reasoning on ambiguity and risk, not on generating more files.
@@ -162,7 +172,8 @@ more reasoning on ambiguity and risk, not on generating more files.
 ## Verification
 
 Verification is the default completion gate for every mode. Codex runs the
-checks in the context and proportionate local checks, then reports:
+checks in the context and proportionate local checks only to collect evidence;
+ChatGPT Web then judges:
 
 - changed files;
 - acceptance-criterion evidence;
@@ -170,8 +181,8 @@ checks in the context and proportionate local checks, then reports:
 - plan deviations, verification gaps, and unrelated `DISCOVERED_ISSUES`.
 
 Do not report unavailable checks as passed. A default task does not create a
-Change Result, Visual Review, or Final Review file. A post-implementation
-ChatGPT review can be requested explicitly and remains in chat by default.
+Change Result, Visual Review, or Final Review file. The ChatGPT Web verification
+remains in chat by default.
 
 ## When to save documents
 
@@ -190,10 +201,10 @@ the skill; only the optional decision-record template remains.
 
 ## UI guidance
 
-For UI changes, read `references/ui-design-context.md`. Use supplied design
-references and verified existing patterns. If no visual source exists, define
-observable behavior, states, responsiveness, and accessibility without
-inventing a visual system. Put those boundaries in
+For UI changes, read `references/ui-design-context.md` and
+`references/auto-ui-design.md`. Reuse existing patterns for local corrections;
+adapt supplied references when available; otherwise automatically generate a
+bounded visual direction for new pages, flows, and redesigns. Put the result in
 `implementation_constraints` and keep visual evidence temporary.
 
 ## Browser and security

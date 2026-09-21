@@ -1,15 +1,16 @@
-# Optional Reviewer Protocol
+# ChatGPT Web Verification Protocol
 
-ChatGPT Web review is not a default stage in the new workflow. Use this
-protocol only when the user explicitly requests a product/design review or
-when the current task is separately authorized to require one.
+ChatGPT Web verification is the default final gate after Codex implementation
+and evidence collection. It is also used for an explicitly requested
+product/design review. Keep the result in the active conversation unless the
+user asks for a durable review artifact.
 
 ## Input
 
 Send the original user request, the accepted six-field execution context,
-changed-file summary, verification results, and only the focused diff or UI
-evidence needed for judgment. Do not send a duplicate collection of stage
-artifacts.
+changed-file summary, raw command results, manual observations, and only the
+focused diff or UI evidence needed for judgment. Do not send a duplicate
+collection of stage artifacts.
 
 ## Review criteria
 
@@ -33,5 +34,6 @@ or another review artifact unless the user explicitly asks to save it.
 ## Fix loop
 
 For `NEEDS_FIX`, Codex fixes only the identified bounded issue, reruns the
-affected verification, and sends the updated evidence. A review must not
-authorize unrelated redesign, refactoring, or scope expansion.
+affected checks to collect updated evidence, and sends that evidence back to
+ChatGPT Web. ChatGPT Web makes the next verification judgment. The fix loop
+must not authorize unrelated redesign, refactoring, or scope expansion.

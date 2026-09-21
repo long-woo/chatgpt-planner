@@ -2,10 +2,11 @@
 name: chatgpt-planner
 description: >-
   Use a risk-adaptive ChatGPT Web and Codex workflow for software changes.
-  ChatGPT Web owns product intent and planning; Codex inspects, implements,
-  and verifies the repository using one temporary execution context.
+  ChatGPT Web owns product intent, planning, and verification; Codex inspects,
+  implements, and collects implementation evidence using one temporary
+  execution context.
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # ChatGPT Planner
@@ -14,8 +15,9 @@ Use a two-agent development workflow:
 
 - **ChatGPT Web** understands the request, makes product/UI decisions, and
   produces one bounded execution context.
-- **Codex** verifies repository facts, implements the requested change, and
-  performs verification.
+- **Codex** supplies verified repository facts, implements the requested
+  change, and collects raw test, build, and UI evidence. It does not own the
+  final verification judgment.
 - **The current client** transfers the temporary context between the two
   agents.
 
@@ -36,13 +38,21 @@ User Request
   → ChatGPT Web analysis
   → one temporary structured execution context
   → Codex implementation
-  → Codex verification
+  → Codex evidence collection
+  → ChatGPT Web verification
+  → DONE or bounded fix loop
 ```
 
 The execution context is transferred in the conversation and kept in memory
 for the active task. New executions must not create `.md` or `.json` process
 artifacts, including requirement reviews, design handoffs, engineering
 analyses, task contracts, change results, visual reviews, or final reviews.
+
+When the request changes a UI surface, the ChatGPT Web analysis includes the
+Automatic UI Design subroutine. It produces implementation-ready design intent
+inside `implementation_constraints` before Codex edits the UI. The current
+client must not design the UI, and Codex must not replace ChatGPT Web's design
+decisions with its own product or visual direction.
 
 Do not persist intermediate analysis, repeat the user's request in multiple
 documents, or create product documentation as part of the default flow.
@@ -60,7 +70,9 @@ verification
 ```
 
 `workflow_mode` is orchestration metadata held by the current client. It is
-not a reason to add fields to the execution context.
+not a reason to add fields to the execution context. For UI work, the current
+client also derives `ui_design_mode`; it is routing metadata, not another
+context field.
 
 ## Select a workflow mode
 
@@ -77,11 +89,12 @@ authentication, authorization, privacy, security, billing, payment, or
 destructive impact.
 
 ```text
-TRIAGE → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
+TRIAGE → CONTEXT → IMPLEMENTATION → EVIDENCE → CHATGPT_WEB_VERIFICATION → DONE
 ```
 
 ChatGPT Web performs a compact analysis and returns one execution context.
-There is no file output and no default second review.
+There is no file output. ChatGPT Web performs the final verification after
+Codex submits the implementation evidence.
 
 ### STANDARD
 
@@ -89,13 +102,14 @@ Use for a bounded feature, page, endpoint, data-model adjustment, or
 user-visible flow that needs more complete requirement and design reasoning.
 
 ```text
-ANALYSIS → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
+ANALYSIS → CONTEXT → IMPLEMENTATION → EVIDENCE → CHATGPT_WEB_VERIFICATION → DONE
 ```
 
 ChatGPT Web may reason through requirements, product behavior, UI states, and
 implementation boundaries internally, but returns only one execution context.
 There is no default Requirement Review, Design Handoff, Task Contract, or
-Review file.
+Review file, but ChatGPT Web still verifies the implementation in the active
+conversation.
 
 ### COMPREHENSIVE
 
@@ -103,14 +117,14 @@ Use for architecture changes, core journeys, security/privacy/authorization,
 irreversible data behavior, or major release capabilities.
 
 ```text
-DEEP_ANALYSIS → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
+DEEP_ANALYSIS → CONTEXT → IMPLEMENTATION → EVIDENCE → CHATGPT_WEB_VERIFICATION → DONE
 ```
 
 ChatGPT Web may perform the complete product, UI, risk, and planning analysis
 needed for the request. It still returns one execution context and does not
-write intermediate artifacts by default. Codex performs repository analysis
-and verification as part of implementation without creating engineering or
-review documents.
+write intermediate artifacts by default. Codex performs repository analysis as
+needed for implementation and submits evidence; ChatGPT Web performs the
+verification without creating engineering or review documents.
 
 ## Planning and context rules
 
@@ -130,9 +144,10 @@ contain a duplicated requirement-review narrative, a task decomposition
 artifact, speculative cleanup, or invented repository facts.
 
 For UI work, use `references/ui-design-context.md`. Put confirmed design
-inputs, existing-pattern constraints, required states, and unresolved visual
-decisions in `implementation_constraints`; do not create a separate design
-handoff.
+inputs, existing-pattern constraints, required states, and the result of the
+Automatic UI Design subroutine in `implementation_constraints`; do not create a
+separate design handoff. Read `references/auto-ui-design.md` for the routing
+and output rules.
 
 If a material product, data, security, compatibility, or architecture decision
 is unresolved, ask the user before producing the final context. Do not produce
@@ -163,20 +178,22 @@ If repository facts conflict with the context, stop and use the bounded
 `PLAN_CORRECTION` procedure in `references/browser-workflow.md` to request a
 replacement context. Do not silently reinterpret the product intent.
 
-## Verification
+## Evidence collection and ChatGPT Web verification
 
 Codex runs the checks listed in `verification`, plus proportionate local
-checks needed to protect the repository. Report commands, results, relevant
-manual/UI evidence, deviations, and verification gaps in the final response
-or active task conversation. Do not write a `change-result`, `visual-review`,
-or `final-review` file by default.
+checks needed to collect evidence. Report raw commands and results, relevant
+manual/UI evidence, deviations, and verification gaps to ChatGPT Web in the
+active task conversation. Do not write a `change-result`, `visual-review`, or
+`final-review` file by default.
 
-Verification is the default completion gate for all three modes. A check that
-could not be run must remain a gap; it must not be reported as passed.
+ChatGPT Web verification is the default completion gate for all three modes.
+Codex must not turn evidence into a final PASS. A check that could not be run
+must remain a gap; it must not be reported as passed.
 
-For UI work, collect only focused screenshots or rendered evidence needed to
-check the acceptance criteria. Visual judgment may be requested in chat, but
-it does not create a file unless the user explicitly asks to save the review.
+For UI work, Codex collects only focused screenshots or rendered evidence
+needed to check the acceptance criteria. ChatGPT Web performs the visual
+judgment in the verification turn, and it does not create a file unless the
+user explicitly asks to save the review.
 
 ## Optional artifact extension
 
@@ -204,8 +221,8 @@ When information conflicts, use this priority:
 4. the accepted execution context;
 5. implementation preference.
 
-ChatGPT Web owns product intent. Codex owns repository facts and technical
-verification.
+ChatGPT Web owns product intent and verification judgment. Codex owns
+repository facts, implementation, and raw technical evidence collection.
 
 ## Completion
 
@@ -213,8 +230,9 @@ The task is complete when:
 
 - the execution context bounded the work;
 - Codex implemented only the requested scope;
-- every required acceptance criterion is established;
-- required verification passed or any gap is clearly disclosed; and
+- ChatGPT Web judged every required acceptance criterion as satisfied;
+- ChatGPT Web judged the submitted verification evidence sufficient, with no
+  unresolved gap; and
 - no unresolved product or technical blocker remains.
 
 Do not use the presence of a workflow-state file or any legacy artifact as a

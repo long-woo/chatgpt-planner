@@ -40,7 +40,9 @@ Return exactly one JSON object with exactly six top-level fields:
   `acceptance_criteria` are concise arrays of non-empty strings.
 - `acceptance_criteria` are observable or meaningful system conditions.
 - `verification` contains at least one concrete check for implementation work;
-  each item has a non-empty `check` and boolean `required`.
+  each item has a non-empty `check` and boolean `required`. These are the
+  checks and evidence ChatGPT Web will use for final verification; Codex may
+  execute them but does not own the final judgment.
 - The context does not introduce behavior absent from the user request,
   verified repository facts, or confirmed design input.
 - Empty `non_goals` or constraints are allowed only when there is genuinely
@@ -54,8 +56,11 @@ intermediate reasoning as extra fields. Put a necessary boundary in the most
 appropriate of the six fields.
 
 For UI requests, place source status, required states, accessibility needs,
-and unresolved visual choices in `implementation_constraints`. Do not create a
-separate design handoff.
+and unresolved visual choices in `implementation_constraints`. When
+`ui_design_mode` is `AUTO_DESIGN`, include a concise `AUTO_UI_DESIGN` direction
+covering the requested layout, hierarchy, interactions, states, responsive
+behavior, and accessibility boundaries. Do not create a separate design
+handoff.
 
 For plan-only requests, the same context is returned but Codex does not edit
 code. For implementation requests, Codex uses it as the scope boundary.

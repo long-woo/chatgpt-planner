@@ -37,13 +37,16 @@ is resolved.
 
 ## Verification failure
 
-Keep the context scope fixed. Diagnose and fix only failures caused by the
-requested change, then rerun affected checks. If a failure exposes a new
-product, architecture, data, security, or compatibility decision, stop and
-escalate to a safer mode instead of expanding scope.
+ChatGPT Web owns the final verification judgment. If it returns `NEEDS_FIX`,
+keep the context scope fixed. Codex diagnoses and fixes only failures caused by
+the requested change, reruns the affected checks to collect new evidence, and
+sends that evidence back to ChatGPT Web. ChatGPT Web then returns the next
+`PASS`, `NEEDS_FIX`, or `BLOCKED` judgment.
 
-Report failed and unavailable checks accurately. Never convert `not_run` into
-`passed`.
+If a failure exposes a new product, architecture, data, security, or
+compatibility decision, stop and escalate to a safer mode instead of expanding
+scope. Report failed and unavailable checks accurately. Never convert
+`not_run` into `passed`, and never let Codex declare a final PASS.
 
 ## Legacy files
 

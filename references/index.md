@@ -12,9 +12,10 @@ temporary execution context and do not create process artifacts.
 | `execution-context.md` | Six-field temporary handoff and validation | Before ChatGPT Web planning |
 | `planner-protocol.md` | One-turn Planner behavior and prompt rules | Interacting with ChatGPT Web |
 | `ui-design-context.md` | UI evidence and constraint rules | UI-changing work |
+| `auto-ui-design.md` | Automatic UI design routing and generated design constraints | New UI surface, flow, or redesign |
 | `browser-workflow.md` | ChatGPT Web interaction and context transfer | Browser planning |
 | `failure-handling.md` | Browser, context, conflict, and verification recovery | When a handoff/check fails |
-| `reviewer-protocol.md` | Optional post-implementation ChatGPT review | Only when review is requested |
+| `reviewer-protocol.md` | ChatGPT Web verification judgment and bounded fix loop | After Codex evidence collection |
 | `optional-artifacts.md` | Explicit opt-in durable documents and legacy inputs | Only when saving is requested |
 | `decision-records.md` | Optional cross-iteration confirmed decisions | Existing records or explicit request |
 

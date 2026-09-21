@@ -44,9 +44,17 @@ See `execution-context.md` for validation rules.
 - Use only verified repository facts supplied by Codex.
 - Include explicit non-goals and the smallest coherent scope.
 - Define objective acceptance criteria and practical verification.
-- For UI work, distinguish confirmed design input from existing patterns and
-  unresolved decisions.
-- Do not add optional improvements, broad refactors, or invented design.
+- For UI work, run the Automatic UI Design subroutine from
+  `references/auto-ui-design.md`. Distinguish confirmed design input from
+  existing patterns and generated design intent, and place the concise result
+  in `implementation_constraints`.
+- Do not add optional improvements, broad refactors, or design outside the
+  selected UI design mode.
+- For `AUTO_DESIGN`, generate a restrained, reversible visual direction from
+  the user request, verified repository patterns, and platform conventions;
+  ChatGPT Web must make these design decisions itself and return
+  implementation-ready design intent. Do not delegate UI design to Codex or
+  leave a new UI surface without a bounded direction.
 - Resolve material blocking questions with the user before producing the
   context.
 - For Standard and Comprehensive work, do the fuller analysis internally but

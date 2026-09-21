@@ -2,7 +2,7 @@
 
 Use `LITE` for a clear, localized, reversible, objectively verifiable change.
 Its purpose is to preserve product scope without forcing a planning document
-or review loop.
+or artifact bundle.
 
 ## Eligibility
 
@@ -23,7 +23,8 @@ If any criterion is false or uncertain, use `STANDARD` or `COMPREHENSIVE`.
 ## Flow
 
 ```text
-TRIAGE → CONTEXT → IMPLEMENTATION → VERIFICATION → DONE
+TRIAGE → CONTEXT → IMPLEMENTATION → EVIDENCE
+→ CHATGPT_WEB_VERIFICATION → DONE
 ```
 
 Triage and stage status are held in the current task memory. Do not initialize
@@ -37,13 +38,19 @@ facts, Lite constraints, and the execution-context schema from
 
 The context must contain a bounded goal, included scope, non-goals,
 implementation constraints, observable acceptance criteria, and practical
-verification. Codex validates it in memory and does not persist it.
+verification. The current client validates it in memory and does not persist
+it.
 
-## Implementation and verification
+## Implementation and evidence
 
 Codex may edit only the bounded scope. Run the listed targeted checks and any
-proportionate local check needed to protect the change. Report acceptance
-results and command evidence in the active task response.
+proportionate local check needed to collect evidence. Report raw command output,
+manual observations, and UI evidence in the active task response; do not make
+the final acceptance decision.
+
+ChatGPT Web then verifies the evidence against every acceptance criterion. It
+returns `PASS`, `NEEDS_FIX`, or `BLOCKED`. Only a ChatGPT Web `PASS` completes
+the Lite workflow.
 
 If the change crosses an escalation boundary, stop, select a safer mode, and
 request a replacement context before continuing. Do not add an ad-hoc review
